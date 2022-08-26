@@ -1,6 +1,10 @@
 # Build dirs
 build
 
+# Temporary stuff
+tmp
+tmp.*
+
 # esp32 'old' config file
 *.old
 
