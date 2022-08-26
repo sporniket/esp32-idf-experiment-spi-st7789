@@ -1,0 +1,174 @@
+# Copyright 2021,2022 David SPORN
+# ---
+# This file is part of 'Weather Central'.
+# ---
+# 'Weather Central' is free software: you can redistribute it and/or 
+# modify it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or 
+# (at your option) any later version.
+
+# 'Weather Central' is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+# Public License for more details.
+
+# You should have received a copy of the GNU General Public License along 
+# with 'Weather Central'. If not, see <https://www.gnu.org/licenses/>. 
+
+menu "WEATHER CENTRAL"
+
+    config LABEL_DEVICE_NAME
+        string "Device Name"
+        default "The mighty device"
+        help
+            This label will be displayed when querying about the device.
+
+    config LABEL_MANUFACTURER_NAME
+        string "Manufacturer Name"
+        default "A. Nonymous"
+        help
+            This label will be displayed when querying about the device manufacturer.
+
+menu "Control panel mapping"
+
+    config PIN_STATUS_MAIN
+    int "Main LED GPIO number"
+    range 0 34
+    default 27
+    help
+        GPIO number (IOxx) for the 'Main status' LED.
+
+    config PIN_BUTTON_MENU
+    int "BUTTON 'MENU' GPIO number"
+    range 0 39
+    default 39
+    help
+        GPIO number (IOxx) for the button panel : 'menu'/'ok'.
+
+    config PIN_BUTTON_BACK
+    int "BUTTON 'BACK' GPIO number"
+    range 0 39
+    default 36
+    help
+        GPIO number (IOxx) for the button panel : 'back'/'cancel'.
+
+    config PIN_BUTTON_UP
+    int "BUTTON 'UP' GPIO number"
+    range 0 39
+    default 34
+    help
+        GPIO number (IOxx) for the button panel : 'up'.
+
+    config PIN_BUTTON_DOWN
+    int "BUTTON 'DOWN' GPIO number"
+    range 0 39
+    default 35
+    help
+        GPIO number (IOxx) for the button panel : 'down'.
+
+endmenu #"Control panel mapping"
+
+menu "SPI HOST configuration"
+
+    choice SPI_HOST
+		prompt "SPI peripheral"
+		default SPI2_HOST
+		help
+			Select the actual SPI peripheral to use as SPI HOST.
+		config SPI2_HOST
+			bool "SPI2_HOST"
+			help
+				Use SPI2_HOST, also known as HSPI_HOST.
+		config SPI3_HOST
+			bool "SPI3_HOST"
+			help
+				Use SPI3_HOST, also known as VSPI_HOST
+	endchoice
+
+    config PIN_SPI_HOST_SCK
+    int "SPI Clock GPIO number"
+    range 0 33
+    default 1
+    help
+        GPIO number (IOxx) for the SPI Host clock signal.
+
+    config PIN_SPI_HOST_SDI
+    int "SPI SDI GPIO number"
+    range -1 33
+    default -1
+    help
+        GPIO number (IOxx) for the SPI Host Data In signal, -1 if unused.
+
+    config PIN_SPI_HOST_SDO
+    int "SPI SDO GPIO number"
+    range -1 33
+    default -1
+    help
+        GPIO number (IOxx) for the SPI Host Data Out signal, -1 if unused.
+
+    config PIN_SPI_HOST_CS0
+    int "SPI CS0 GPIO number"
+    range -1 33
+    default -1
+    help
+        GPIO number (IOxx) for the SPI Host Chip Select #0, -1 if unused.
+
+    config PIN_SPI_HOST_CS1
+    int "SPI CS1 GPIO number"
+    range -1 33
+    default -1
+    help
+        GPIO number (IOxx) for the SPI Host Chip Select #1, -1 if unused.
+
+    config PIN_SPI_HOST_CS2
+    int "SPI CS2 GPIO number"
+    range -1 33
+    default -1
+    help
+        GPIO number (IOxx) for the SPI Host Chip Select #2, -1 if unused.
+
+endmenu #"SPI mapping"
+
+menuconfig HAVE_ST7789
+    bool "Use ST7789 based display"
+
+if HAVE_ST7789
+
+    config PIN_ST7789_DATA_COMMAND
+        int "ST7789 DC GPIO number"
+        range 0 33
+        default 0
+        help
+            GPIO number (IOxx) for the ST7789 Data/Command signal.
+
+	config ST7789_WIDTH
+		int "Screen width"
+		range 0 999
+		default 240
+		help
+			The width resolution of the screen.
+
+	config ST7789_HEIGHT
+		int "Screen height"
+		range 0 999
+		default 240
+		help
+			The height resolution of the screen.
+
+	config ST7789_OFFSETX
+		int "X offset"
+		range 0 99
+		default 0
+		help
+			Offset along X.
+
+	config ST7789_OFFSETY
+		int "Y offset"
+		range 0 99
+		default 0
+		help
+			Offset along Y.
+
+endif
+
+endmenu #"WEATHER CENTRAL"
