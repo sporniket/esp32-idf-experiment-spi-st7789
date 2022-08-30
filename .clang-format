@@ -1,0 +1,14 @@
+# General -- line length
+ColumnLimit: 120
+
+# General -- Indentation
+ContinuationIndentWidth: 8
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# Access modifier -- until using clang-format v13
+AccessModifierOffset: 0
+
+# Compactedness
+AllowShortFunctionsOnASingleLine: true
