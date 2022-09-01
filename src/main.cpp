@@ -7,13 +7,14 @@
 #include "sdkconfig.h"
 
 //
+#include "Task.h"
 
 #include "DigitalInputOutputEsp32.hpp"
 #include "FeedbackLed.hpp"
 #include "GeneralPurposeInputOutput.hpp"
 
 #include "SpiSimplistEsp32.hpp"
-#include "Task.h"
+#include "St7789Esp32.hpp"
 
 /**
  * Main program.
