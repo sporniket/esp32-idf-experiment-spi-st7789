@@ -11,7 +11,9 @@
 // project includes
 #include "SpiSimplist.hpp"
 
-//typedef void HostToDevicePreTransactionListener(spi_transaction_t *t);
+static const char *TAG_SPI_SIMPLIST_ESP32 = "SpiSimplistEsp32";
+
+// typedef void HostToDevicePreTransactionListener(spi_transaction_t *t);
 
 class HostToDevicePreTransactionListenerMapping {
     private:
@@ -32,15 +34,15 @@ class SpiSimplistEsp32Builder;
  */
 class SpiSimplistEsp32 {
     private:
-    std::map<SpiDeviceOfHostIdentifier, spi_device_handle_t *> deviceHandlesOfSpi2;
+    std::map<SpiDeviceOfHostIdentifier, spi_device_handle_t> deviceHandlesOfSpi2;
 
     public:
     virtual ~SpiSimplistEsp32();
-    static SpiSimplistEsp32Builder *define() { return new SpiSimplistEsp32Builder(); }
-    void registerDevice(SpiIdentifier idHost, SpiIdentifier idDevice, spi_device_handle_t *device) {
+    static SpiSimplistEsp32Builder *define();
+    void registerDevice(SpiIdentifier idHost, SpiIdentifier idDevice, spi_device_handle_t device) {
         deviceHandlesOfSpi2[SpiIdentifierHelper::deviceOfHostIdFromIdHostIdDevice(idHost, idDevice)] = device;
     }
-    spi_device_handle_t *getDevice(SpiIdentifier idHost, SpiIdentifier idDevice) {
+    spi_device_handle_t getDevice(SpiIdentifier idHost, SpiIdentifier idDevice) {
         SpiDeviceOfHostIdentifier id = SpiIdentifierHelper::deviceOfHostIdFromIdHostIdDevice(idHost, idDevice);
         return (deviceHandlesOfSpi2.count(id) > 0) ? deviceHandlesOfSpi2[id] : nullptr;
     }
@@ -50,11 +52,12 @@ class SpiSimplistEsp32Builder {
     private:
     std::map<SpiIdentifier, SpiHostSpecs *> hostSpecs;
     std::map<SpiDeviceOfHostIdentifier, transaction_cb_t> hostToDevicePreTransactionListeners;
-    SpiSimplistEsp32 *buildHost(SpiSimplistEsp32 *spi, SpiIdentifier idHost);
+    void buildHost(SpiSimplistEsp32 *spi, SpiIdentifier idHost);
 
     public:
     virtual ~SpiSimplistEsp32Builder();
     SpiSimplistEsp32Builder *withHostSpecs(SpiIdentifier id, SpiSerialPinsMapping *serialPins) {
+        
         hostSpecs[id] = (new SpiHostSpecs(id)) //
                                 ->withSerialPins(serialPins);
         return this;
@@ -63,13 +66,15 @@ class SpiSimplistEsp32Builder {
         if (hostSpecs.count(id) == 0) {
             // FIXME: log error
             // silently do nothing
-            return;
+            return this;
         }
         hostSpecs[id]->withDevice(specs);
         return this;
     }
-    SpiSimplistEsp32Builder *withPreTransactionListener(SpiIdentifier idHost, SpiIdentifier idDevice, transaction_cb_t listener) {
-        hostToDevicePreTransactionListeners[SpiIdentifierHelper::deviceOfHostIdFromIdHostIdDevice(idHost, idDevice)] = listener;
+    SpiSimplistEsp32Builder *withPreTransactionListener(SpiIdentifier idHost, SpiIdentifier idDevice,
+                                                        transaction_cb_t listener) {
+        hostToDevicePreTransactionListeners[SpiIdentifierHelper::deviceOfHostIdFromIdHostIdDevice(idHost, idDevice)] =
+                listener;
         return this;
     }
     SpiSimplistEsp32 *build();

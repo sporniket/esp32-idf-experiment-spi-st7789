@@ -7,8 +7,10 @@
 #include <map>
 
 // esp32 includes
+#include "esp_log.h"
 
 // project includes
+static const char *TAG_SPI_SIMPLIST_TYPES = "SpiSimplistTypes";
 
 /**
  * @brief Identifier are used to uniquely tag a Spi entity for further

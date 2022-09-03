@@ -6,10 +6,13 @@
 #include <vector>
 
 // esp32 includes
+#include "esp_log.h"
 
 // project includes
-#include "St7789Types.hpp"
 #include "St7789Job.hpp"
+#include "St7789Types.hpp"
+
+static const char *TAG_ST7789 = "St7789";
 
 class St7789 {
     private:
@@ -35,6 +38,16 @@ class St7789 {
         }
     }
 
+    St7789Command *newCommand(St7789Opcode opcode, uint32_t dataLength, St7789CommandDirection dataDirection,
+                              bool keepExternalBufferOnDelete) {
+        St7789Command *command = new St7789Command;
+        command->opcode = opcode;
+        command->dataLength = dataLength;
+        command->dataDirection = dataDirection;
+        command->keepExternalBufferOnDelete = keepExternalBufferOnDelete;
+        return command;
+    }
+
     public:
     virtual ~St7789(){};
     /**
@@ -47,15 +60,15 @@ class St7789 {
     virtual void await(St7789Command *command) = 0;
     virtual void await(std::vector<St7789Command *> *sequence) = 0;
     St7789Command *nop() {
-        St7789Command *command = new St7789Command{NOP, 0, NONE};
+        St7789Command *command = newCommand(NOP, 0, NONE_7789, false);
         return command;
     }
     St7789Command *swreset() {
-        St7789Command *command = new St7789Command{SWRESET, 0, NONE};
+        St7789Command *command = newCommand(SWRESET, 0, NONE_7789, false);
         return command;
     }
     St7789Command *caset(uint16_t xs, uint16_t xe) {
-        St7789Command *command = new St7789Command{CASET, 4, WRITE};
+        St7789Command *command = newCommand(CASET, 4, WRITE_7789, false);
         uint8_t *message;
         if (MUST_USE_EXTERNAL_BUFFER(4)) {
             // create and fill external buffer
@@ -72,7 +85,7 @@ class St7789 {
         return command;
     }
     St7789Command *raset(uint16_t ys, uint16_t ye) {
-        St7789Command *command = new St7789Command{RASET, 4, WRITE};
+        St7789Command *command = newCommand(RASET, 4, WRITE_7789, false);
         uint8_t *message;
         if (MUST_USE_EXTERNAL_BUFFER(4)) {
             // create and fill external buffer
@@ -89,12 +102,12 @@ class St7789 {
         return command;
     }
     St7789Command *ramwr(uint32_t size, uint8_t *buffer) {
-        St7789Command *command = new St7789Command{RAMWR, size, WRITE};
+        St7789Command *command = newCommand(RAMWR, size, WRITE_7789, false);
         setupMessageFromUnmanagedMemory(command, size, buffer);
         return command;
     }
     St7789Command *colmod(St7789PixelFormat f) {
-        St7789Command *command = new St7789Command{COLMOD, 1, WRITE};
+        St7789Command *command = newCommand(COLMOD, 1, WRITE_7789, false);
         uint8_t *message = command->internalBuffer;
         message[0] = f & 0xff;
         message[1] = 0;
@@ -103,7 +116,7 @@ class St7789 {
         return command;
     }
     St7789Command *ramwrc(uint32_t size, uint8_t *buffer) {
-        St7789Command *command = new St7789Command{RAMWRC, size, WRITE};
+        St7789Command *command = newCommand(RAMWRC, size, WRITE_7789, false);
         setupMessageFromUnmanagedMemory(command, size, buffer);
         return command;
     }

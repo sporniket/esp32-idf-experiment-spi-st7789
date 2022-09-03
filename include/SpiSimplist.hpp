@@ -10,28 +10,28 @@
 // project includes
 #include "SpiSimplistTypes.hpp"
 
+static const char *TAG_SPI_SIMPLIST = "SpiSimplist";
+
 /** @brief What the class is for.
  */
-template<typename TypeOfPreTransactionListener>
-class SpiSimplist {
+template <typename TypeOfPreTransactionListener> class SpiSimplist {
     protected:
-        std::map<SpiIdentifier, SpiHostSpecs<TypeOfPreTransactionListener> *> hosts;
-    public:
-        SpiSimplist() {}
-        virtual ~SpiSimplist()
-        SpiSimplist *withHost(SpiHostSpecs<TypeOfPreTransactionListener> host) {
-            hosts[host->getId()] = host ;
-            return this ;
-        }
-        SpiHostSpecs<TypeOfPreTransactionListener> * getHost(SpiIdentifier id) {
-            return (hosts.count(id) > 0) ? return hosts[id] : (nullptr) 0 ;
-        }
+    std::map<SpiIdentifier, SpiHostSpecs *> hosts;
 
-        /**
-         * @brief use all the provided specifications so far and instanciate the internal management of the SPI ports.
-         * 
-         */
-        virtual void start() = 0 ;
-} ;
+    public:
+    SpiSimplist() {}
+    virtual ~SpiSimplist();
+    SpiSimplist *withHost(SpiHostSpecs *host) {
+        hosts[host->getId()] = host;
+        return this;
+    }
+    SpiHostSpecs *getHost(SpiIdentifier id) { return (hosts.count(id) > 0) ? hosts[id] : nullptr; }
+
+    /**
+     * @brief use all the provided specifications so far and instanciate the internal management of the SPI ports.
+     *
+     */
+    virtual void start() = 0;
+};
 
 #endif

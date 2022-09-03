@@ -9,6 +9,8 @@
 // project includes
 #include "St7789Types.hpp"
 
+static const char *TAG_ST7789_JOB = "St7789Job";
+
 /**
  * @brief Essentially a collection of pointers that will have to be freed later.
  *

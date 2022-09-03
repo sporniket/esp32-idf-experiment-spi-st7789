@@ -8,6 +8,8 @@
 
 // project includes
 
+static const char *TAG_ST7789_TYPES = "St7789Types";
+
 #define SIZE_OF_POINTER_TO_BYTE_ARRAY (sizeof(uint8_t *))
 
 #define SHOULD_USE_INTERNAL_BUFFER(x) ((x) <= (sizeof(uint8_t *)))
@@ -55,7 +57,7 @@ enum St7789TransactionNature {
  * there is no direction.
  *
  */
-enum St7789CommandDirection { READ, WRITE, NONE };
+enum St7789CommandDirection { READ_7789, WRITE_7789, NONE_7789 };
 
 /**
  * @brief Describe a command : opcode and data buffer to send or buffer to receive.

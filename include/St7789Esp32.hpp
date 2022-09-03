@@ -2,8 +2,8 @@
 #define ST7789ESP32_HPP
 
 // standard includes
-#include <algorithm>
 #include <cstdint>
+#include <cstring>
 #include <vector>
 
 // esp32 includes
@@ -15,6 +15,8 @@
 // forward declarations
 class St7789Esp32;
 class St7789Esp32Builder;
+
+static const char *TAG_ST7789_ESP32 = "St7789Esp32";
 
 /**
  * @brief Extra data to be referenced from a spi transaction, to be processed by a pre-transaction listener.
@@ -59,7 +61,7 @@ class St7789Esp32 : public St7789 {
 
     spi_transaction_t *commandTransactionFromCommand(St7789Command *cmd) {
         spi_transaction_t *t = new spi_transaction_t;
-        std::fill(t, t + sizeof(spi_transaction_t), 0);
+        std::memset(t, 0, sizeof(spi_transaction_t)) ;
         t->length = 8; // always 8 bits
         t->tx_buffer = &(cmd->opcode);
         t->user = &extraCommand;
@@ -68,9 +70,9 @@ class St7789Esp32 : public St7789 {
 
     spi_transaction_t *dataTransactionFromCommand(St7789Command *cmd) {
         spi_transaction_t *t = new spi_transaction_t;
-        std::fill(t, t + sizeof(spi_transaction_t), 0);
+        std::memset(t, 0, sizeof(spi_transaction_t)) ;
         uint8_t *buffer = MUST_USE_EXTERNAL_BUFFER(cmd->dataLength) ? cmd->externalBuffer : cmd->internalBuffer;
-        if (cmd->dataDirection == WRITE) {
+        if (cmd->dataDirection == St7789CommandDirection::WRITE_7789) {
             t->length = 8 * cmd->dataLength;
             t->tx_buffer = buffer;
             t->user = &extraDataWrite;
@@ -113,6 +115,7 @@ class St7789Esp32 : public St7789 {
 
     int16_t getDataCommandPin() { return dataCommandPin; }
     int16_t getReadWritePin() { return readWritePin; }
+    static St7789Esp32Builder *define() ;
 };
 
 /** @brief Allow to define an instance of St7789Esp32 with a fluent syntax.
