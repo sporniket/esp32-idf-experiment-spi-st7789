@@ -87,7 +87,7 @@ class St7789Esp32 : public St7789 {
                                                 dataTransactionFromCommand(cmd));
     }
 
-    void awaitWhileBusIsAcquired(St7789Command *command) ;
+    void awaitWhileBusIsAcquired(St7789Command *command);
 
     public:
     /**
@@ -110,6 +110,9 @@ class St7789Esp32 : public St7789 {
     virtual void schedule(std::vector<St7789Command *> *sequence);
     virtual void await(St7789Command *command);
     virtual void await(std::vector<St7789Command *> *sequence);
+
+    int16_t getDataCommandPin() { return dataCommandPin; }
+    int16_t getReadWritePin() { return readWritePin; }
 };
 
 /** @brief Allow to define an instance of St7789Esp32 with a fluent syntax.
@@ -139,7 +142,8 @@ class St7789Esp32Builder {
     }
     /**
      * @brief Designate the GPIO pin number used as the read/write pin (tied to the /OE1 and OE2 pins of a 74'241 chip,
-     * to manage the ST7789 configured with a bidirectionnal SDA -a.k.a serial interface 1 in the ST7789 datasheet-)
+     * to manage the ST7789 configured with a bidirectionnal SDA -a.k.a serial interface 1 in the ST7789 datasheet-,
+     * those pins are set to HIGH for reading and LOW for writing)
      *
      * @param p the GPIO pin number.
      * @return St7789Esp32Builder* the builder for the next step.

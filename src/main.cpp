@@ -59,7 +59,14 @@ class LedUpdaterTask : public Task {
 LedUpdaterTask *updateTask;
 
 void onBeforeTransactionForSt7789(spi_transaction_t *t) {
-    gpio->getDigital()->write(CONFIG_PIN_ST7789_DATA_COMMAND, ((bool)t->user));
+    St7789TransactionExtra *extra = (St7789TransactionExtra *)t->user;
+    bool isData = extra->nature != COMMAND ;
+    // manage DC pin
+    gpio->getDigital()->write(extra->target->getDataCommandPin(), isData);
+    // manage R/W pin
+    if (extra->target->getReadWritePin() >= 0 ) {
+        gpio->getDigital()->write(extra->target->getReadWritePin(), extra->nature == DATA_READ);
+    } 
 }
 
 void app_main() {
@@ -67,7 +74,7 @@ void app_main() {
 
     // setup gpio
     gpio = (new GeneralPurposeInputOutput())->withDigital(new DigitalInputOutputEsp32());
-    gpio->getDigital()->setup(CONFIG_PIN_STATUS_MAIN, WRITE);
+    gpio->getDigital()->setup(CONFIG_PIN_STATUS_MAIN, PinDirection::WRITE);
 
     // setup main led
     // -- start update task
@@ -91,7 +98,6 @@ void app_main() {
                   ->withPreTransactionListener(SPI2_HOST, 0, onBeforeTransactionForSt7789)
                   ->build();
     // Initialize the LCD
-    lcd_init(spi);
     // setup ST7789 (D/C pin, reset pin, backlight pin)
     // -- send SWRESET
     // -- send COLMOD(0x53) // (262k RGB, 12bpps)

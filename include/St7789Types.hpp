@@ -36,8 +36,17 @@ enum St7789Orientation { NORTH, EAST, WEST, SOUTH };
  * @brief attached to a native transaction to tell the pre-transaction listener what the transaction is.
  */
 enum St7789TransactionNature {
+    /**
+     * @brief D/C pin = 0 ; R/W pin = 0.
+     */
     COMMAND,
+    /**
+     * @brief D/C pin = 1 ; R/W pin = 1.
+     */
     DATA_READ,
+    /**
+     * @brief D/C pin = 1 ; R/W pin = 0.
+     */
     DATA_WRITE,
 };
 
