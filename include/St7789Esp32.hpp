@@ -61,26 +61,36 @@ class St7789Esp32 : public St7789 {
 
     spi_transaction_t *commandTransactionFromCommand(St7789Command *cmd) {
         spi_transaction_t *t = new spi_transaction_t;
-        std::memset(t, 0, sizeof(spi_transaction_t)) ;
+        t->flags = 0; // FIXME
+        t->cmd = 0;
+        t->addr = 0;
         t->length = 8; // always 8 bits
-        t->tx_buffer = &(cmd->opcode);
+        t->rxlength = 0;
         t->user = &extraCommand;
+        t->tx_buffer = &(cmd->opcode);
+        t->rx_buffer = nullptr;
         return t;
     }
 
     spi_transaction_t *dataTransactionFromCommand(St7789Command *cmd) {
         spi_transaction_t *t = new spi_transaction_t;
-        std::memset(t, 0, sizeof(spi_transaction_t)) ;
+        t->flags = 0; // FIXME
+        t->cmd = 0;
+        t->addr = 0;
         uint8_t *buffer = MUST_USE_EXTERNAL_BUFFER(cmd->dataLength) ? cmd->externalBuffer : cmd->internalBuffer;
         if (cmd->dataDirection == St7789CommandDirection::WRITE_7789) {
             t->length = 8 * cmd->dataLength;
-            t->tx_buffer = buffer;
+            t->rxlength = 0;
             t->user = &extraDataWrite;
+            t->tx_buffer = buffer;
+            t->rx_buffer = nullptr;
         } else {
             // This is a data READ
+            t->length = 0 ;
             t->rxlength = 8 * cmd->dataLength;
-            t->rx_buffer = buffer;
             t->user = &extraDataRead;
+            t->tx_buffer = nullptr;
+            t->rx_buffer = buffer;
         }
         return t;
     }
@@ -115,7 +125,7 @@ class St7789Esp32 : public St7789 {
 
     int16_t getDataCommandPin() { return dataCommandPin; }
     int16_t getReadWritePin() { return readWritePin; }
-    static St7789Esp32Builder *define() ;
+    static St7789Esp32Builder *define();
 };
 
 /** @brief Allow to define an instance of St7789Esp32 with a fluent syntax.

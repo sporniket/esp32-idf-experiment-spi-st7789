@@ -146,7 +146,6 @@ void app_main() {
                       ->withDataCommandPin(CONFIG_PIN_ST7789_DATA_COMMAND) //
                       ->withPixelFormat(BPP12)                             //
                       ->build();
-    /*
 
         // -- send COLMOD(0x53) // (262k RGB, 12bpps) --> done by the instanciation
         mainLed.setFeedbackSequenceAndLoop(FeedbackSequence::BLINK_THRICE);
@@ -189,7 +188,8 @@ void app_main() {
         //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb  // line 8
         //            )
         lcd7789->await(lcd7789->ramwr(96, (uint8_t *)RGB_DATA + 24));
-    */
+
     // ====[ THE END ]====
+    ESP_LOGI(TAG_MAIN, "You should see something on the screen...") ;
     mainLed.setFeedbackSequenceAndLoop(FeedbackSequence::FALTER_THRICE);
 }

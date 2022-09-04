@@ -23,15 +23,15 @@ SpiSimplistEsp32 *SpiSimplistEsp32Builder::build() {
     SpiSimplistEsp32 *result = new SpiSimplistEsp32();
     // SPI2 aka legacy HSPI
     if (hostSpecs.count(SPI2_HOST) > 0) {
-        ESP_LOGI(TAG_SPI_SIMPLIST_ESP32, "will build SPI2_HOST...");
+        ESP_LOGV(TAG_SPI_SIMPLIST_ESP32, "will build SPI2_HOST...");
         buildHost(result, SPI2_HOST);
-        ESP_LOGI(TAG_SPI_SIMPLIST_ESP32, "DONE build SPI2_HOST...");
+        ESP_LOGV(TAG_SPI_SIMPLIST_ESP32, "DONE build SPI2_HOST...");
     }
     // SPI3 aka legacy VSPI
     if (hostSpecs.count(SPI3_HOST) > 0) {
-        ESP_LOGI(TAG_SPI_SIMPLIST_ESP32, "will build SPI3_HOST...");
+        ESP_LOGV(TAG_SPI_SIMPLIST_ESP32, "will build SPI3_HOST...");
         buildHost(result, SPI3_HOST);
-        ESP_LOGI(TAG_SPI_SIMPLIST_ESP32, "DONE build SPI3_HOST...");
+        ESP_LOGV(TAG_SPI_SIMPLIST_ESP32, "DONE build SPI3_HOST...");
     }
 
     return result;
@@ -52,13 +52,13 @@ void SpiSimplistEsp32Builder::buildHost(SpiSimplistEsp32 *spi, SpiIdentifier idH
                                .max_transfer_sz = 0, // 4092
                                .flags = SPICOMMON_BUSFLAG_MASTER,
                                .intr_flags = 0};
-    ESP_LOGI(TAG_SPI_SIMPLIST_ESP32, "will spi_bus_initialize...");
+    ESP_LOGV(TAG_SPI_SIMPLIST_ESP32, "will spi_bus_initialize...");
     ret = spi_bus_initialize((spi_host_device_t)idHost, &buscfg, SPI_DMA_CH_AUTO);
     ESP_ERROR_CHECK(ret);
-    ESP_LOGI(TAG_SPI_SIMPLIST_ESP32, "will browse device...");
+    ESP_LOGV(TAG_SPI_SIMPLIST_ESP32, "will browse device...");
     for (std::map<SpiIdentifier, SpiDeviceForHostSpecs *>::iterator it = host->getDevices()->begin();
          it != host->getDevices()->end(); ++it) {
-        ESP_LOGI(TAG_SPI_SIMPLIST_ESP32, "Preparing device #%d...", it->first);
+        ESP_LOGV(TAG_SPI_SIMPLIST_ESP32, "Preparing device #%d...", it->first);
         SpiDeviceForHostSpecs *device = it->second;
         spi_device_interface_config_t *devcfg = new spi_device_interface_config_t;
         devcfg->command_bits = 0; 
@@ -78,6 +78,7 @@ void SpiSimplistEsp32Builder::buildHost(SpiSimplistEsp32 *spi, SpiIdentifier idH
         if (hostToDevicePreTransactionListeners.count(id) > 0) {
             devcfg->pre_cb = hostToDevicePreTransactionListeners[id];
         }
+        devcfg->post_cb = nullptr;
         spi_device_handle_t deviceHandle ;
         ret = spi_bus_add_device((spi_host_device_t)idHost, devcfg, &deviceHandle);
         spi->registerDevice(idHost, device->getId(), deviceHandle);
