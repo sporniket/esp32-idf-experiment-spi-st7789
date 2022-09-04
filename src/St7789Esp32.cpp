@@ -55,6 +55,8 @@ void St7789Esp32::awaitWhileBusIsAcquired(St7789Command *command) {
         ret = spi_device_polling_transmit(spiDeviceHandle, job->getTransactionOfData());
         ESP_ERROR_CHECK(ret);
     }
+
+    delete job ; // WARNING with read command, callee MUST provide a persistant buffer where the spi driver will write data read from device.
     ESP_LOGV(TAG_ST7789_ESP32, "DONE command");
 }
 
