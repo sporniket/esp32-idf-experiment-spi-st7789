@@ -19,11 +19,25 @@ static const char *TAG_ST7789_TYPES = "St7789Types";
 enum St7789Opcode {
     NOP = 0x00,
     SWRESET = 0x01,
+    SLPOUT = 0x11,
+    DISPON = 0x29,
     CASET = 0x2a,
     RASET = 0x2b,
     RAMWR = 0x2c,
+    MADCTL = 0x36,
     COLMOD = 0x3a,
     RAMWRC = 0x3c,
+    PORCTRL = 0xb2,
+    GCTRL = 0xb7,
+    VCOM = 0xbb,
+    LCMCTRL = 0xc0,
+    VDVVRHEN = 0xc2,
+    VRHS = 0xc3,
+    VDVS = 0xc4,
+    FRCTRL2 = 0xc6,
+    PWCTRL1 = 0xd0,
+    PVGAMCTRL = 0xe0,
+    NVGAMCTRL = 0xe1,
 };
 
 enum St7789PixelFormat { BPP12 = 0x53, BPP16 = 0x54, BPP18 = 0x55 };

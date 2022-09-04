@@ -64,19 +64,28 @@ class LedUpdaterTask : public Task {
 LedUpdaterTask *updateTask;
 
 void onBeforeTransactionForSt7789(spi_transaction_t *t) {
-    ESP_LOGI(TAG_MAIN,"--> onBeforeTransactionForSt7789") ;
+    ESP_LOGV(TAG_MAIN, "--> onBeforeTransactionForSt7789");
     St7789TransactionExtra *extra = (St7789TransactionExtra *)t->user;
     bool isData = extra->nature != COMMAND;
     // manage DC pin
     gpio->getDigital()->write(extra->target->getDataCommandPin(), isData);
-    ESP_LOGI(TAG_MAIN,"set DC pin to %d", isData) ;
+    ESP_LOGV(TAG_MAIN, "set DC pin to %d", isData);
     // manage R/W pin
     if (extra->target->getReadWritePin() >= 0) {
-        bool isRead = extra->nature == DATA_READ ;
+        bool isRead = extra->nature == DATA_READ;
         gpio->getDigital()->write(extra->target->getReadWritePin(), isRead);
-        ESP_LOGI(TAG_MAIN,"set RW pin to %d", isRead) ;
+        ESP_LOGV(TAG_MAIN, "set RW pin to %d", isRead);
     }
-    ESP_LOGI(TAG_MAIN,"<-- onBeforeTransactionForSt7789") ;
+    ESP_LOGV(TAG_MAIN, "<-- onBeforeTransactionForSt7789");
+}
+
+void onAfterTransactionForSt7789(spi_transaction_t *t) {
+    ESP_LOGV(TAG_MAIN, "--> onAfterTransactionForSt7789");
+    St7789TransactionExtra *extra = (St7789TransactionExtra *)t->user;
+    if (extra->requiresDelay) {
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+    ESP_LOGV(TAG_MAIN, "<-- onAfterTransactionForSt7789");
 }
 
 void app_main() {
@@ -112,6 +121,12 @@ void app_main() {
 
     // ST7789 pins
     gpio->getDigital()->setup(CONFIG_PIN_ST7789_DATA_COMMAND, PinDirection::WRITE);
+    gpio->getDigital()->setup(CONFIG_PIN_ST7789_RESET, PinDirection::WRITE);
+    // -- hardware reset
+    gpio->getDigital()->setToLow(CONFIG_PIN_ST7789_RESET);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    gpio->getDigital()->setToHigh(CONFIG_PIN_ST7789_RESET);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
     // -- FIXME read/write pin
 
     // setup main led
@@ -132,7 +147,8 @@ void app_main() {
                                                    ->withClockFrequency(SPI_MASTER_FREQ_26M) // FIXME configurable
                                                    ->withSelectPin(CONFIG_PIN_SPI_HOST_CS0)  //
                                            )
-                  ->withPreTransactionListener(SPI2_HOST, 0, onBeforeTransactionForSt7789)
+                  ->withPreTransactionListener(SPI2_HOST, 0, onBeforeTransactionForSt7789) //
+                  ->withPostTransactionListener(SPI2_HOST, 0, onAfterTransactionForSt7789) //
                   ->build();
 
     mainLed.setFeedbackSequenceAndLoop(FeedbackSequence::BLINK_TWICE);
@@ -147,49 +163,49 @@ void app_main() {
                       ->withPixelFormat(BPP12)                             //
                       ->build();
 
-        // -- send COLMOD(0x53) // (262k RGB, 12bpps) --> done by the instanciation
-        mainLed.setFeedbackSequenceAndLoop(FeedbackSequence::BLINK_THRICE);
+    // -- send COLMOD(0x53) // (262k RGB, 12bpps) --> done by the instanciation
+    mainLed.setFeedbackSequenceAndLoop(FeedbackSequence::BLINK_THRICE);
 
-        // ====[ EXECUTE ]====
-        // ~~~~[plot at (8,8), color 0xfff]~~~~
-        // ST7789 --> CASET(8,8)
-        lcd7789->await(lcd7789->caset(8, 8));
-        // ST7789 --> RASET(8,8)
-        lcd7789->await(lcd7789->raset(8, 8));
-        // ST7789 --> RAMWR(0xff,0xf0)
-        lcd7789->await(lcd7789->ramwr(2, (uint8_t *)RGB_DATA));
-        // ~~~~[plot hline at (16,8)-->(23,8), color 0x0ff]~~~~
-        // ST7789 --> CASET(16,23)
-        lcd7789->await(lcd7789->caset(16, 23));
-        // ST7789 --> RASET(8,8) // could be optimised out
-        lcd7789->await(lcd7789->raset(8, 8));
-        // ST7789 --> RAMWR(0x0f,0xf0,0xff,0x0f,0xf0,0xff,0x0f,0xf0,0xff,0x0f,0xf0,0xff)
-        lcd7789->await(lcd7789->ramwr(12, (uint8_t *)RGB_DATA));
-        // ~~~~[plot vline at (8,16)-->(8,23), color 0xf0f]~~~~
-        // ST7789 --> CASET(8,8)
-        lcd7789->await(lcd7789->caset(8, 8));
-        // ST7789 --> RASET(16,23)
-        lcd7789->await(lcd7789->raset(16, 23));
-        // ST7789 --> RAMWR(0xf0,0xff,0x0f,0xf0,0xff,0x0f,0xf0,0xff,0x0f,0xf0,0xff,0x0f)
-        lcd7789->await(lcd7789->ramwr(12, (uint8_t *)RGB_DATA + 12));
-        // ~~~~[plot filled box at (16,16)-->(23,23), color 0xfdb]~~~~
-        // ST7789 --> CASET(8,8)
-        lcd7789->await(lcd7789->caset(16, 23));
-        // ST7789 --> RASET(16,23)
-        lcd7789->await(lcd7789->raset(16, 23));
-        // ST7789 --> RAMWR(
-        //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 1
-        //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 2
-        //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 3
-        //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 4
-        //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 5
-        //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 6
-        //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 7
-        //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb  // line 8
-        //            )
-        lcd7789->await(lcd7789->ramwr(96, (uint8_t *)RGB_DATA + 24));
+    // ====[ EXECUTE ]====
+    // ~~~~[plot at (8,8), color 0xfff]~~~~
+    // ST7789 --> CASET(8,8)
+    lcd7789->await(lcd7789->caset(8, 8));
+    // ST7789 --> RASET(8,8)
+    lcd7789->await(lcd7789->raset(8, 8));
+    // ST7789 --> RAMWR(0xff,0xf0)
+    lcd7789->await(lcd7789->ramwr(2, (uint8_t *)RGB_DATA));
+    // ~~~~[plot hline at (16,8)-->(23,8), color 0x0ff]~~~~
+    // ST7789 --> CASET(16,23)
+    lcd7789->await(lcd7789->caset(16, 23));
+    // ST7789 --> RASET(8,8) // could be optimised out
+    lcd7789->await(lcd7789->raset(8, 8));
+    // ST7789 --> RAMWR(0x0f,0xf0,0xff,0x0f,0xf0,0xff,0x0f,0xf0,0xff,0x0f,0xf0,0xff)
+    lcd7789->await(lcd7789->ramwr(12, (uint8_t *)RGB_DATA));
+    // ~~~~[plot vline at (8,16)-->(8,23), color 0xf0f]~~~~
+    // ST7789 --> CASET(8,8)
+    lcd7789->await(lcd7789->caset(8, 8));
+    // ST7789 --> RASET(16,23)
+    lcd7789->await(lcd7789->raset(16, 23));
+    // ST7789 --> RAMWR(0xf0,0xff,0x0f,0xf0,0xff,0x0f,0xf0,0xff,0x0f,0xf0,0xff,0x0f)
+    lcd7789->await(lcd7789->ramwr(12, (uint8_t *)RGB_DATA + 12));
+    // ~~~~[plot filled box at (16,16)-->(23,23), color 0xfdb]~~~~
+    // ST7789 --> CASET(116,123)
+    lcd7789->await(lcd7789->caset(116, 123));
+    // ST7789 --> RASET(116,123)
+    lcd7789->await(lcd7789->raset(116, 123));
+    // ST7789 --> RAMWR(
+    //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 1
+    //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 2
+    //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 3
+    //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 4
+    //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 5
+    //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 6
+    //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb, // line 7
+    //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb  // line 8
+    //            )
+    lcd7789->await(lcd7789->ramwr(96, (uint8_t *)RGB_DATA + 24));
 
     // ====[ THE END ]====
-    ESP_LOGI(TAG_MAIN, "You should see something on the screen...") ;
+    ESP_LOGI(TAG_MAIN, "You should see something on the screen...");
     mainLed.setFeedbackSequenceAndLoop(FeedbackSequence::FALTER_THRICE);
 }

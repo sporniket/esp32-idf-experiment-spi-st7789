@@ -61,25 +61,33 @@ void SpiSimplistEsp32Builder::buildHost(SpiSimplistEsp32 *spi, SpiIdentifier idH
         ESP_LOGV(TAG_SPI_SIMPLIST_ESP32, "Preparing device #%d...", it->first);
         SpiDeviceForHostSpecs *device = it->second;
         spi_device_interface_config_t *devcfg = new spi_device_interface_config_t;
-        devcfg->command_bits = 0; 
-        devcfg->address_bits = 0; 
-        devcfg->dummy_bits = 0; 
-        devcfg->mode = 1; // FIXME give a way to setup
-        devcfg->duty_cycle_pos = 0 ; //default to 50/50
-        devcfg->cs_ena_pretrans = 0 ; 
-        devcfg->cs_ena_posttrans = 0 ; 
+        devcfg->command_bits = 0;
+        devcfg->address_bits = 0;
+        devcfg->dummy_bits = 0;
+        devcfg->mode = 0;           // FIXME give a way to setup
+        devcfg->duty_cycle_pos = 0; // default to 50/50
+        devcfg->cs_ena_pretrans = 0;
+        devcfg->cs_ena_posttrans = 0;
         devcfg->clock_speed_hz = (int)device->getClockFrequency();
         devcfg->input_delay_ns = 0;
         devcfg->spics_io_num = device->getSelectPin();
-        devcfg->flags = SPI_DEVICE_HALFDUPLEX | SPI_DEVICE_NO_DUMMY, // FIXME give a way to setup // SPI_DEVICE_3WIRE for ST7789 with serial interface 1
-        devcfg->queue_size = 7; // FIXME give a way to setup
+        devcfg->flags =
+                SPI_DEVICE_HALFDUPLEX |
+                SPI_DEVICE_NO_DUMMY, // FIXME give a way to setup // SPI_DEVICE_3WIRE for ST7789 with serial interface 1
+                devcfg->queue_size = 7; // FIXME give a way to setup
         SpiDeviceOfHostIdentifier id =
                 SpiIdentifierHelper::deviceOfHostIdFromIdHostIdDevice(host->getId(), device->getId());
         if (hostToDevicePreTransactionListeners.count(id) > 0) {
             devcfg->pre_cb = hostToDevicePreTransactionListeners[id];
+        } else {
+            devcfg->pre_cb = nullptr;
         }
-        devcfg->post_cb = nullptr;
-        spi_device_handle_t deviceHandle ;
+        if (hostToDevicePostTransactionListeners.count(id) > 0) {
+            devcfg->post_cb = hostToDevicePostTransactionListeners[id];
+        } else {
+            devcfg->post_cb = nullptr;
+        }
+        spi_device_handle_t deviceHandle;
         ret = spi_bus_add_device((spi_host_device_t)idHost, devcfg, &deviceHandle);
         spi->registerDevice(idHost, device->getId(), deviceHandle);
     }

@@ -141,6 +141,13 @@ if HAVE_ST7789
         help
             GPIO number (IOxx) for the ST7789 Data/Command signal.
 
+    config PIN_ST7789_RESET
+        int "ST7789 RESET GPIO number"
+        range 0 33
+        default 25
+        help
+            GPIO number (IOxx) for the ST7789 Data/Command signal.
+
 	config ST7789_WIDTH
 		int "Screen width"
 		range 0 999

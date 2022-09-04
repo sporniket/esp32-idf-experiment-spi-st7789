@@ -52,6 +52,7 @@ class SpiSimplistEsp32Builder {
     private:
     std::map<SpiIdentifier, SpiHostSpecs *> hostSpecs;
     std::map<SpiDeviceOfHostIdentifier, transaction_cb_t> hostToDevicePreTransactionListeners;
+    std::map<SpiDeviceOfHostIdentifier, transaction_cb_t> hostToDevicePostTransactionListeners;
     void buildHost(SpiSimplistEsp32 *spi, SpiIdentifier idHost);
 
     public:
@@ -74,6 +75,12 @@ class SpiSimplistEsp32Builder {
     SpiSimplistEsp32Builder *withPreTransactionListener(SpiIdentifier idHost, SpiIdentifier idDevice,
                                                         transaction_cb_t listener) {
         hostToDevicePreTransactionListeners[SpiIdentifierHelper::deviceOfHostIdFromIdHostIdDevice(idHost, idDevice)] =
+                listener;
+        return this;
+    }
+    SpiSimplistEsp32Builder *withPostTransactionListener(SpiIdentifier idHost, SpiIdentifier idDevice,
+                                                        transaction_cb_t listener) {
+        hostToDevicePostTransactionListeners[SpiIdentifierHelper::deviceOfHostIdFromIdHostIdDevice(idHost, idDevice)] =
                 listener;
         return this;
     }
