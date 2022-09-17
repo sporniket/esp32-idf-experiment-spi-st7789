@@ -66,14 +66,14 @@ LedUpdaterTask *updateTask;
 void onBeforeTransactionForSt7789(spi_transaction_t *t) {
     ESP_LOGV(TAG_MAIN, "--> onBeforeTransactionForSt7789");
     St7789TransactionExtra *extra = (St7789TransactionExtra *)t->user;
-    bool isData = extra->nature != COMMAND;
+    bool isData = extra->getNature() != COMMAND;
     // manage DC pin
-    gpio->getDigital()->write(extra->target->getDataCommandPin(), isData);
+    gpio->getDigital()->write(extra->getTarget()->getDataCommandPin(), isData);
     ESP_LOGV(TAG_MAIN, "set DC pin to %d", isData);
     // manage R/W pin
-    if (extra->target->getReadWritePin() >= 0) {
-        bool isRead = extra->nature == DATA_READ;
-        gpio->getDigital()->write(extra->target->getReadWritePin(), isRead);
+    if (extra->getTarget()->getReadWritePin() >= 0) {
+        bool isRead = extra->getNature() == DATA_READ;
+        gpio->getDigital()->write(extra->getTarget()->getReadWritePin(), isRead);
         ESP_LOGV(TAG_MAIN, "set RW pin to %d", isRead);
     }
     ESP_LOGV(TAG_MAIN, "<-- onBeforeTransactionForSt7789");
@@ -82,8 +82,9 @@ void onBeforeTransactionForSt7789(spi_transaction_t *t) {
 void onAfterTransactionForSt7789(spi_transaction_t *t) {
     ESP_LOGV(TAG_MAIN, "--> onAfterTransactionForSt7789");
     St7789TransactionExtra *extra = (St7789TransactionExtra *)t->user;
-    if (extra->requiresDelay) {
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+    uint8_t requiredDelay = extra->getDelay();
+    if (requiredDelay > 0) {
+        vTaskDelay(requiredDelay / portTICK_PERIOD_MS);
     }
     ESP_LOGV(TAG_MAIN, "<-- onAfterTransactionForSt7789");
 }
@@ -137,7 +138,7 @@ void app_main() {
     mainLed.setFeedbackSequenceOnce(FeedbackSequence::BLINK_ONCE);
     // setup SPI Port (speed, pins, etc...) as HOST (a set of Peripheral Select pins)
     spi = SpiSimplistEsp32::define()                                                        //
-                  ->withHostSpecs(SPI2_HOST, (new SpiSerialPinsMapping())                   //
+                  ->withHostSpecs(SPI2_HOST, (new SpiSerialPinsMappingSpecs())                   //
                                                      ->withClock(CONFIG_PIN_SPI_HOST_SCK)   //
                                                      ->withDataIn(CONFIG_PIN_SPI_HOST_SDI)  //
                                                      ->withDataOut(CONFIG_PIN_SPI_HOST_SDO) //
