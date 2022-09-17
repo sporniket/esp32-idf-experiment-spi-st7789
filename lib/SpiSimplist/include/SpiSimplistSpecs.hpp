@@ -87,19 +87,48 @@ class SpiDeviceForHostSpecs {
     int16_t selectPin = -1;
     uint32_t clockFrequency = 100000; // 100 kHz
     SpiClockMode clockMode = SpiClockMode::CPOL_0_CPHA_0;
+    void *extraSpecs;
 
     public:
     SpiDeviceForHostSpecs(SpiIdentifier id);
+    /**
+     * @brief Define the GPIO to select the device.
+     * 
+     * @param gpio 
+     * @return SpiDeviceForHostSpecs* 
+     */
     SpiDeviceForHostSpecs *withSelectPin(int16_t gpio) {
         selectPin = gpio;
         return this;
     }
+    /**
+     * @brief Defines the clock frequency, in Hertz.
+     * 
+     * @param frequency 
+     * @return SpiDeviceForHostSpecs* 
+     */
     SpiDeviceForHostSpecs *withClockFrequency(uint32_t frequency) {
         clockFrequency = frequency;
         return this;
     }
+    /**
+     * @brief Defines the clock polarity and phase.
+     * 
+     * @param mode 
+     * @return SpiDeviceForHostSpecs* 
+     */
     SpiDeviceForHostSpecs *withClockMode(SpiClockMode mode) {
         clockMode = mode;
+        return this;
+    }
+    /**
+     * @brief Set extra specifications, usually platform dependant.
+     *
+     * @param extra 
+     * @return SpiDeviceForHostSpecs*
+     */
+    SpiDeviceForHostSpecs *withExtraSpecs(void *extra) {
+        extraSpecs = extra;
         return this;
     }
 
@@ -107,6 +136,7 @@ class SpiDeviceForHostSpecs {
     int16_t getSelectPin() { return selectPin; }
     uint32_t getClockFrequency() { return clockFrequency; }
     SpiClockMode getClockMode() { return clockMode; }
+    void *getExtraSpecs() { return extraSpecs; }
 };
 
 /**
