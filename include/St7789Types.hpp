@@ -40,7 +40,7 @@ enum St7789Opcode {
     NVGAMCTRL = 0xe1,
 };
 
-enum St7789PixelFormat { BPP12 = 0x53, BPP16 = 0x54, BPP18 = 0x55 };
+enum St7789PixelFormat { BPP12 = 0x03, BPP16 = 0x54, BPP18 = 0x55 };
 
 /**
  * @brief human friendly setup of the screen orientation, will be translated into MADCTL flags.

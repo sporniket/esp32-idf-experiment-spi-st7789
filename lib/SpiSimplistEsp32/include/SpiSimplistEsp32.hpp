@@ -57,7 +57,7 @@ class SpiSimplistEsp32Builder {
 
     public:
     virtual ~SpiSimplistEsp32Builder();
-    SpiSimplistEsp32Builder *withHostSpecs(SpiIdentifier id, SpiSerialPinsMapping *serialPins) {
+    SpiSimplistEsp32Builder *withHostSpecs(SpiIdentifier id, SpiSerialPinsMappingSpecs *serialPins) {
         
         hostSpecs[id] = (new SpiHostSpecs(id)) //
                                 ->withSerialPins(serialPins);

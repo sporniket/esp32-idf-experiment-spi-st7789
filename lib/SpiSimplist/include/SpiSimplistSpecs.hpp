@@ -1,5 +1,5 @@
-#ifndef SPI_SIMPLIST_TYPES_HPP
-#define SPI_SIMPLIST_TYPES_HPP
+#ifndef SPI_SIMPLIST_SPECS_HPP
+#define SPI_SIMPLIST_SPECS_HPP
 
 // standard includes
 #include <cstddef>
@@ -10,30 +10,13 @@
 #include "esp_log.h"
 
 // project includes
-static const char *TAG_SPI_SIMPLIST_TYPES = "SpiSimplistTypes";
-
-/**
- * @brief Identifier are used to uniquely tag a Spi entity for further
- * retrieval.
- */
-using SpiIdentifier = uint16_t;
-
-using SpiDeviceOfHostIdentifier = uint32_t;
-
-class SpiIdentifierHelper {
-    public:
-    static SpiDeviceOfHostIdentifier deviceOfHostIdFromIdHostIdDevice(SpiIdentifier idHost, SpiIdentifier idDevice) {
-        return (((SpiDeviceOfHostIdentifier)idHost) << 16) + idDevice;
-    }
-    static SpiIdentifier idHostFromDeviceOfHostId(SpiDeviceOfHostIdentifier id) { return id >> 16; }
-    static SpiIdentifier idDeviceFromDeviceOfHostId(SpiDeviceOfHostIdentifier id) { return id & 0xff; }
-};
+#include "SpiSimplistTypes.hpp"
 
 /**
  * @brief Specification of the GPIO pins to use for SPI serial transmission.
  *
  */
-class SpiSerialPinsMapping {
+class SpiSerialPinsMappingSpecs {
     private:
     int16_t clock = -1;
     int16_t dataIn = -1;
@@ -46,7 +29,7 @@ class SpiSerialPinsMapping {
      * @param gpio the gpio pin number.
      * @return SpiSerialPinsMapping* this updated mapping.
      */
-    SpiSerialPinsMapping *withClock(int16_t gpio) {
+    SpiSerialPinsMappingSpecs *withClock(int16_t gpio) {
         clock = gpio;
         return this;
     }
@@ -57,7 +40,7 @@ class SpiSerialPinsMapping {
      * @param gpio the gpio pin number.
      * @return SpiSerialPinsMapping* this updated mapping.
      */
-    SpiSerialPinsMapping *withDataIn(int16_t gpio) {
+    SpiSerialPinsMappingSpecs *withDataIn(int16_t gpio) {
         dataIn = gpio;
         return this;
     }
@@ -68,7 +51,7 @@ class SpiSerialPinsMapping {
      * @param gpio the gpio pin number.
      * @return SpiSerialPinsMapping* this updated mapping.
      */
-    SpiSerialPinsMapping *withDataOut(int16_t gpio) {
+    SpiSerialPinsMappingSpecs *withDataOut(int16_t gpio) {
         dataOut = gpio;
         return this;
     }
@@ -103,6 +86,7 @@ class SpiDeviceForHostSpecs {
     SpiIdentifier id;
     int16_t selectPin = -1;
     uint32_t clockFrequency = 100000; // 100 kHz
+    SpiClockMode clockMode = SpiClockMode::CPOL_0_CPHA_0;
 
     public:
     SpiDeviceForHostSpecs(SpiIdentifier id);
@@ -114,9 +98,15 @@ class SpiDeviceForHostSpecs {
         clockFrequency = frequency;
         return this;
     }
+    SpiDeviceForHostSpecs *withClockMode(SpiClockMode mode) {
+        clockMode = mode;
+        return this;
+    }
+
     SpiIdentifier getId() { return id; }
     int16_t getSelectPin() { return selectPin; }
     uint32_t getClockFrequency() { return clockFrequency; }
+    SpiClockMode getClockMode() { return clockMode; }
 };
 
 /**
@@ -130,12 +120,12 @@ class SpiHostSpecs {
      *
      */
     SpiIdentifier id;
-    SpiSerialPinsMapping *serialPins;
+    SpiSerialPinsMappingSpecs *serialPins;
     std::map<SpiIdentifier, SpiDeviceForHostSpecs *> devices;
 
     public:
     SpiHostSpecs(SpiIdentifier id);
-    SpiHostSpecs *withSerialPins(SpiSerialPinsMapping *mapping) {
+    SpiHostSpecs *withSerialPins(SpiSerialPinsMappingSpecs *mapping) {
         serialPins = mapping;
         return this;
     }
@@ -147,7 +137,7 @@ class SpiHostSpecs {
 
     SpiIdentifier getId() { return id; }
 
-    SpiSerialPinsMapping *getSerialPins() { return serialPins; }
+    SpiSerialPinsMappingSpecs *getSerialPins() { return serialPins; }
 
     bool isDefinedDevice(SpiIdentifier) { return devices.count(id) > 0; }
 

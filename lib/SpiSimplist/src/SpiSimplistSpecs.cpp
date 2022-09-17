@@ -1,6 +1,6 @@
 
 // header include
-#include "SpiSimplistTypes.hpp"
+#include "SpiSimplistSpecs.hpp"
 
 
 // SpiSimplistTypes::~SpiSimplistTypes(){}

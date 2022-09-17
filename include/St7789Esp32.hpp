@@ -22,11 +22,12 @@ static const char *TAG_ST7789_ESP32 = "St7789Esp32";
  * @brief Extra data to be referenced from a spi transaction, to be processed by a pre-transaction and post-transaction
  * listener.
  *
- * An instance of St7789Esp32 should pre-instanciate this structure for each combination of flags.
- *
- * The goal is to be able to update the DC pin and the 74x241 that will proxy the SDA pins into SDO and SDI.
+ * The goal are, for the pre-transaction listener to be able to setup the DC pin and the 74x241 that will proxy the SDA
+ * pins into SDO and SDI ; for the post-transaction listener to delay further processing to accomodate the latency
+ * required after some commands.
  */
-struct St7789TransactionExtra {
+class St7789TransactionExtra {
+    private:
     /**
      * @brief the instance of St7789, that is able to manage its specific command pins.
      */
@@ -39,10 +40,21 @@ struct St7789TransactionExtra {
     St7789TransactionNature nature;
 
     /**
-     * @brief Tells the post-transaction listener to wait a little.
+     * @brief Tells the post-transaction listener to wait a little, in milliseconds.
      *
      */
-    bool requiresDelay;
+    uint8_t delay;
+
+    public:
+    St7789TransactionExtra(St7789Esp32 *target, St7789TransactionNature nature)
+        : target(target), nature(nature), delay(0) {}
+    St7789TransactionExtra(St7789Esp32 *target, St7789TransactionNature nature, uint8_t delay)
+        : target(target), nature(nature), delay(0) {}
+    virtual ~St7789TransactionExtra() {}
+
+    St7789Esp32 *getTarget() { return target; }
+    St7789TransactionNature getNature() { return nature; }
+    uint8_t getDelay() { return delay; }
 };
 
 /**
@@ -52,11 +64,15 @@ struct St7789TransactionExtra {
 class St7789Esp32 : public St7789 {
     private:
     // Transaction extras to be linked from spi transactions
-    St7789TransactionExtra extraCommand = {this, COMMAND, false};
-    St7789TransactionExtra extraCommandWithDelay = {this, COMMAND, true};
-    St7789TransactionExtra extraDataRead = {this, DATA_READ, false};
-    St7789TransactionExtra extraDataWrite = {this, DATA_WRITE, false};
-    St7789TransactionExtra extraDataWriteWithDelay = {this, DATA_WRITE, true};
+    St7789TransactionExtra *extraCommand() { return new St7789TransactionExtra(this, COMMAND); }
+    St7789TransactionExtra *extraCommandWithDelay(uint8_t delay) {
+        return new St7789TransactionExtra(this, COMMAND, delay);
+    }
+    St7789TransactionExtra *extraDataRead() { return new St7789TransactionExtra(this, DATA_READ); }
+    St7789TransactionExtra *extraDataWrite() { return new St7789TransactionExtra(this, DATA_WRITE); }
+    St7789TransactionExtra *extraDataWriteWithDelay(uint8_t delay) {
+        return new St7789TransactionExtra(this, DATA_WRITE, delay);
+    }
 
     // settings
     int16_t dataCommandPin;
@@ -68,15 +84,15 @@ class St7789Esp32 : public St7789 {
     bool mirror;
     St7789PixelFormat pixelFormat;
 
-    bool isCommandWithDelay(St7789Opcode opcode) {
+    uint8_t delayForCommand(St7789Opcode opcode) {
         switch (opcode) {
         case SWRESET:
+            return 120; // delay required before sending SLPOUT command
         case SLPOUT:
-        case DISPON:
-            return true;
+            return 120; // delay required before sending SLPIN command
 
         default:
-            return false;
+            return 0;
         }
     }
 
@@ -87,7 +103,7 @@ class St7789Esp32 : public St7789 {
         t->addr = 0;
         t->length = 8; // always 8 bits
         t->rxlength = 0;
-        t->user = isCommandWithDelay(cmd->opcode) ? &extraCommandWithDelay : &extraCommand;
+        t->user = new St7789TransactionExtra(this, COMMAND, delayForCommand(cmd->opcode));
         t->tx_buffer = &(cmd->opcode);
         t->rx_buffer = nullptr;
         return t;
@@ -102,14 +118,14 @@ class St7789Esp32 : public St7789 {
         if (cmd->dataDirection == St7789CommandDirection::WRITE_7789) {
             t->length = 8 * cmd->dataLength;
             t->rxlength = 0;
-            t->user = &extraDataWrite;
+            t->user = new St7789TransactionExtra(this, DATA_WRITE, delayForCommand(cmd->opcode));
             t->tx_buffer = buffer;
             t->rx_buffer = nullptr;
         } else {
             // This is a data READ
             t->length = 0;
             t->rxlength = 8 * cmd->dataLength;
-            t->user = &extraDataRead;
+            t->user = new St7789TransactionExtra(this, DATA_READ, delayForCommand(cmd->opcode));
             t->tx_buffer = nullptr;
             t->rx_buffer = buffer;
         }
@@ -119,6 +135,15 @@ class St7789Esp32 : public St7789 {
         return new St7789Job<spi_transaction_t>(cmd,                                //
                                                 commandTransactionFromCommand(cmd), //
                                                 cmd->dataLength > 0 ? dataTransactionFromCommand(cmd) : nullptr);
+    }
+
+    void teardownJob(St7789Job<spi_transaction_t> *job) {
+        delete ((St7789TransactionExtra *)(job->getTransactionOfCommand()->user));
+        spi_transaction_t *tdata = job->getTransactionOfData();
+        if (tdata) {
+            delete ((St7789TransactionExtra *)(tdata->user));
+        }
+        delete job;
     }
 
     void awaitWhileBusIsAcquired(St7789Command *command);

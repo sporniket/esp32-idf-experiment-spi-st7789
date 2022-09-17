@@ -64,7 +64,7 @@ void SpiSimplistEsp32Builder::buildHost(SpiSimplistEsp32 *spi, SpiIdentifier idH
         devcfg->command_bits = 0;
         devcfg->address_bits = 0;
         devcfg->dummy_bits = 0;
-        devcfg->mode = 0;           // FIXME give a way to setup
+        devcfg->mode = device->getClockMode();
         devcfg->duty_cycle_pos = 0; // default to 50/50
         devcfg->cs_ena_pretrans = 0;
         devcfg->cs_ena_posttrans = 0;

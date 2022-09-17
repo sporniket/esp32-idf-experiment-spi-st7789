@@ -17,23 +17,24 @@ St7789Esp32::St7789Esp32(int16_t dataCommandPin, int16_t readWritePin, spi_devic
     ESP_LOGV(TAG_ST7789_ESP32, "with orientation %d, mirroring is %d", orientation, mirror);
     ESP_LOGV(TAG_ST7789_ESP32, "with pixel format %x", pixelFormat);
 
+    await(swreset());
+    //await(slpout());
+    //await(dispon());
     await(colmod(pixelFormat));
     await(madctl(0));
-    await(porctrl(0x0c, 0x0c, false, 0x03, 0x03, 0x03, 0x03));
-    await(gctrl(0x04, 0x05));
-    await(vcom(0x2b));
-    await(lcmctrl(0x2c));
-    await(vdvvrhen(true));
-    await(vrhs(0x11));
-    await(vdvs(0x20));
-    await(frctrl2(0x00, 0x0f));
-    await(pwctrl1(2, 2, 1));
-    await(pvgamctrl(0x00, 0x00, 0x05, 0x0e, 0x15, 0x0d, 0x37, 0x03, 0x04, 0x47, 0x09, 0x15, 0x12, 0x16, 0x19, 0x0d,
-                    0x00, 0x00));
-    await(nvgamctrl(0x00, 0x00, 0x05, 0x0d, 0x0c, 0x06, 0x2d, 0x04, 0x04, 0x40, 0x0e, 0x1c, 0x18, 0x16, 0x19, 0x0d,
-                    0x00, 0x00));
-    await(slpout());
-    await(dispon());
+    //await(porctrl(0x0c, 0x0c, false, 0x03, 0x03, 0x03, 0x03));
+    //await(gctrl(0x04, 0x05));
+    //await(vcom(0x2b));
+    //await(lcmctrl(0x2c));
+    //await(vdvvrhen(true));
+    //await(vrhs(0x11));
+    //await(vdvs(0x20));
+    //await(frctrl2(0x00, 0x0f));
+    //await(pwctrl1(2, 2, 1));
+    //await(pvgamctrl(0x00, 0x00, 0x05, 0x0e, 0x15, 0x0d, 0x37, 0x03, 0x04, 0x47, 0x09, 0x15, 0x12, 0x16, 0x19, 0x0d,
+    //                0x00, 0x00));
+    //await(nvgamctrl(0x00, 0x00, 0x05, 0x0d, 0x0c, 0x06, 0x2d, 0x04, 0x04, 0x40, 0x0e, 0x1c, 0x18, 0x16, 0x19, 0x0d,
+    //                0x00, 0x00));
     ESP_LOGV(TAG_ST7789_ESP32, "DONE setting colmod");
 }
 
@@ -56,7 +57,7 @@ void St7789Esp32::awaitWhileBusIsAcquired(St7789Command *command) {
         ESP_ERROR_CHECK(ret);
     }
 
-    delete job ; // WARNING with read command, callee MUST provide a persistant buffer where the spi driver will write data read from device.
+    teardownJob(job) ; // WARNING with read command, callee MUST provide a persistant buffer where the spi driver will write data read from device.
     ESP_LOGV(TAG_ST7789_ESP32, "DONE command");
 }
 
