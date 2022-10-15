@@ -82,6 +82,14 @@ class St7789 {
         St7789Command *command = newCommand(SLPOUT, 0, NONE_7789, false);
         return command;
     }
+    St7789Command *noron() {
+        St7789Command *command = newCommand(NORON, 0, NONE_7789, false);
+        return command;
+    }
+    St7789Command *invon() {
+        St7789Command *command = newCommand(INVON, 0, NONE_7789, false);
+        return command;
+    }
     St7789Command *dispon() {
         St7789Command *command = newCommand(DISPON, 0, NONE_7789, false);
         return command;

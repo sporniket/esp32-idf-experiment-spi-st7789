@@ -18,10 +18,14 @@ St7789Esp32::St7789Esp32(int16_t dataCommandPin, int16_t readWritePin, spi_devic
     ESP_LOGV(TAG_ST7789_ESP32, "with pixel format %x", pixelFormat);
 
     await(swreset());
-    //await(slpout());
-    //await(dispon());
+    await(slpout());
     await(colmod(pixelFormat));
-    await(madctl(0));
+    //await(madctl(0)); // present at https://github.com/adafruit/Adafruit-ST7735-Library/blob/master/Adafruit_ST7789.cpp#L50-L77, seems not needed until trying to setup orientation ?
+    await(invon());
+    //await(noron()); // present at https://github.com/adafruit/Adafruit-ST7735-Library/blob/master/Adafruit_ST7789.cpp#L50-L77, seems not needed for my screen.
+    await(dispon());
+
+    //found on the lcd demo of idf toolkit, unneeded at this point for me
     //await(porctrl(0x0c, 0x0c, false, 0x03, 0x03, 0x03, 0x03));
     //await(gctrl(0x04, 0x05));
     //await(vcom(0x2b));

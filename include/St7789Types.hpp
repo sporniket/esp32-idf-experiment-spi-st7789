@@ -20,6 +20,8 @@ enum St7789Opcode {
     NOP = 0x00,
     SWRESET = 0x01,
     SLPOUT = 0x11,
+    NORON = 0x13,
+    INVON = 0x21,
     DISPON = 0x29,
     CASET = 0x2a,
     RASET = 0x2b,

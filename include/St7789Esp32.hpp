@@ -90,6 +90,11 @@ class St7789Esp32 : public St7789 {
             return 120; // delay required before sending SLPOUT command
         case SLPOUT:
             return 120; // delay required before sending SLPIN command
+        
+        case NORON:
+        case INVON:
+        case COLMOD:
+            return 10; // see https://github.com/adafruit/Adafruit-ST7735-Library/blob/master/Adafruit_ST7789.cpp#L50-L77
 
         default:
             return 0;
