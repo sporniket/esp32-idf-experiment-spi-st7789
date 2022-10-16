@@ -24,8 +24,6 @@
 
 // project includes
 
-static const char *TAG_ST7789_TYPES = "St7789Types";
-
 #define SIZE_OF_POINTER_TO_BYTE_ARRAY (sizeof(uint8_t *))
 
 #define SHOULD_USE_INTERNAL_BUFFER(x) ((x) <= (sizeof(uint8_t *)))

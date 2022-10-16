@@ -28,8 +28,6 @@
 #include "St7789Job.hpp"
 #include "St7789Types.hpp"
 
-static const char *TAG_ST7789 = "St7789";
-
 class St7789 {
     private:
     // FIXME a way to manage a buffer of small data chunk, for messages longer than the length of a pointer.
