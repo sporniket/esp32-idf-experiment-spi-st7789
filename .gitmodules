@@ -1,3 +1,6 @@
 [submodule "lib/SpiSimplist"]
 	path = lib/SpiSimplist
 	url = https://github.com/sporniket/SpiSimplist.git
+[submodule "lib/SpiSimplistEsp32"]
+	path = lib/SpiSimplistEsp32
+	url = https://github.com/sporniket/SpiSimplistEsp32.git
