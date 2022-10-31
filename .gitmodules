@@ -7,3 +7,6 @@
 [submodule "lib/St7789"]
 	path = lib/St7789
 	url = https://github.com/sporniket/St7789.git
+[submodule "lib/St7789Esp32"]
+	path = lib/St7789Esp32
+	url = https://github.com/sporniket/St7789Esp32.git
