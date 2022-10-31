@@ -2,17 +2,17 @@
 // ---
 // This file is part of 'esp32-idf-experiment-spi-st7789'.
 // ---
-// 'esp32-idf-experiment-spi-st7789' is free software: you can redistribute it and/or 
-// modify it under the terms of the GNU General Public License as published 
-// by the Free Software Foundation, either version 3 of the License, or 
+// 'esp32-idf-experiment-spi-st7789' is free software: you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-// 'esp32-idf-experiment-spi-st7789' is distributed in the hope that it will be useful, 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+// 'esp32-idf-experiment-spi-st7789' is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 // Public License for more details.
 
-// You should have received a copy of the GNU General Public License along 
+// You should have received a copy of the GNU General Public License along
 // with 'esp32-idf-experiment-spi-st7789'. If not, see <https://www.gnu.org/licenses/>. 
 
 // std
@@ -162,17 +162,22 @@ void app_main() {
     // -- setup led
     mainLed.setFeedbackSequenceOnce(FeedbackSequence::BLINK_ONCE);
     // setup SPI Port (speed, pins, etc...) as HOST (a set of Peripheral Select pins)
-    spi = SpiSimplistEsp32::define()                                                        //
-                  ->withHostSpecs(SPI2_HOST, (new SpiSerialPinsMappingSpecs())                   //
-                                                     ->withClock(CONFIG_PIN_SPI_HOST_SCK)   //
-                                                     ->withDataIn(CONFIG_PIN_SPI_HOST_SDI)  //
-                                                     ->withDataOut(CONFIG_PIN_SPI_HOST_SDO) //
+    spi = SpiSimplistEsp32::define() //
+                  ->withHostSpecs(SPI2_HOST,
+                                  (new SpiSerialPinsMappingSpecs())               //
+                                          ->withClock(CONFIG_PIN_SPI_HOST_SCK)    //
+                                          ->withDataIn(CONFIG_PIN_SPI_HOST_SDI)   //
+                                          ->withDataOut(CONFIG_PIN_SPI_HOST_SDO), //
+                                  (new SpiSimplistEsp32BusConfigAsHostSpecs())    //
                                   )
-                  ->withDeviceForHostSpecs(SPI2_HOST,
-                                           (new SpiDeviceForHostSpecs(0))                    //
-                                                   ->withClockFrequency(SPI_MASTER_FREQ_26M) // FIXME configurable
-                                                   ->withSelectPin(CONFIG_PIN_SPI_HOST_CS0)  //
-                                           )
+                  ->withDeviceForHostSpecs(
+                          SPI2_HOST,
+                          (new SpiDeviceForHostSpecs(0))                    //
+                                  ->withClockFrequency(SPI_MASTER_FREQ_26M) // FIXME configurable
+                                  ->withSelectPin(CONFIG_PIN_SPI_HOST_CS0)  //
+                                  ->withExtraSpecs((new SpiSimplistEsp32DeviceInterfaceConfigSpecs())               //
+                                                           ->withFlags(SPI_DEVICE_HALFDUPLEX | SPI_DEVICE_NO_DUMMY) //
+                                                           ->withQueueSize(7)))
                   ->withPreTransactionListener(SPI2_HOST, 0, onBeforeTransactionForSt7789) //
                   ->withPostTransactionListener(SPI2_HOST, 0, onAfterTransactionForSt7789) //
                   ->build();
@@ -194,18 +199,18 @@ void app_main() {
 
     // ====[ EXECUTE ]====
     // ~~~~[fill screen by filling 8x8 blocs of solid color 0xfdb]~~~~
-    for(uint16_t i = 0; i < 240; i+=8) { // line
-        for(uint16_t j = 0 ; j < 240 ; j+=8) { // col
-            lcd7789->await(lcd7789->caset(j, j+7));
-            lcd7789->await(lcd7789->raset(i, i+7));
+    for (uint16_t i = 0; i < 240; i += 8) {     // line
+        for (uint16_t j = 0; j < 240; j += 8) { // col
+            lcd7789->await(lcd7789->caset(j, j + 7));
+            lcd7789->await(lcd7789->raset(i, i + 7));
             lcd7789->await(lcd7789->ramwr(96, (uint8_t *)RGB_DATA + 24));
         }
     }
     // ~~~~[clear screen by filling 8x8 blocs of solid black (0x000)]~~~~
-    for(uint16_t i = 0; i < 240; i+=8) { // line
-        for(uint16_t j = 0 ; j < 240 ; j+=8) { // col
-            lcd7789->await(lcd7789->caset(j, j+7));
-            lcd7789->await(lcd7789->raset(i, i+7));
+    for (uint16_t i = 0; i < 240; i += 8) {     // line
+        for (uint16_t j = 0; j < 240; j += 8) { // col
+            lcd7789->await(lcd7789->caset(j, j + 7));
+            lcd7789->await(lcd7789->raset(i, i + 7));
             lcd7789->await(lcd7789->ramwr(96, (uint8_t *)RGB_DATA + 120));
         }
     }
