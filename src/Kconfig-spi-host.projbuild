@@ -1,0 +1,77 @@
+# Copyright 2021,2022,2023 David SPORN
+# ---
+# This file is part of 'Weather Central'.
+# ---
+# 'Weather Central' is free software: you can redistribute it and/or 
+# modify it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or 
+# (at your option) any later version.
+
+# 'Weather Central' is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+# Public License for more details.
+
+# You should have received a copy of the GNU General Public License along 
+# with 'Weather Central'. If not, see <https://www.gnu.org/licenses/>. 
+
+menu "SPI HOST configuration"
+
+	choice SPI_HOST
+		prompt "SPI peripheral"
+		default SPI2_HOST
+		help
+			Select the actual SPI peripheral to use as SPI HOST.
+		config SPI2_HOST
+			bool "SPI2_HOST"
+			help
+				Use SPI2_HOST, also known as HSPI_HOST.
+		config SPI3_HOST
+			bool "SPI3_HOST"
+			help
+				Use SPI3_HOST, also known as VSPI_HOST
+	endchoice
+
+	config PIN_SPI_HOST_SCK
+		int "SPI Clock GPIO number"
+		range 0 33
+		default 32
+		help
+			GPIO number (IOxx) for the SPI Host clock signal.
+
+	config PIN_SPI_HOST_SDI
+		int "SPI SDI GPIO number"
+		range -1 33
+		default -1
+		help
+			GPIO number (IOxx) for the SPI Host Data In signal, -1 if unused.
+
+	config PIN_SPI_HOST_SDO
+		int "SPI SDO GPIO number"
+		range -1 33
+		default 33
+		help
+			GPIO number (IOxx) for the SPI Host Data Out signal, -1 if unused.
+
+	config PIN_SPI_HOST_CS0
+		int "SPI CS0 GPIO number"
+		range -1 33
+		default -1
+		help
+			GPIO number (IOxx) for the SPI Host Chip Select #0, -1 if unused.
+
+	config PIN_SPI_HOST_CS1
+		int "SPI CS1 GPIO number"
+		range -1 33
+		default -1
+		help
+			GPIO number (IOxx) for the SPI Host Chip Select #1, -1 if unused.
+
+	config PIN_SPI_HOST_CS2
+		int "SPI CS2 GPIO number"
+		range -1 33
+		default -1
+		help
+			GPIO number (IOxx) for the SPI Host Chip Select #2, -1 if unused.
+
+endmenu #"SPI mapping"
