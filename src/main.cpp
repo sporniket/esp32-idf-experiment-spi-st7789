@@ -21,6 +21,7 @@
 
 // esp32
 #include "driver/spi_master.h"
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "sdkconfig.h"
 
@@ -70,6 +71,12 @@ DRAM_ATTR static const uint8_t RGB_DATA[] = {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // line 8
 };
 
+// EXP DMA capable memory allocation
+// -- screen size = 320 pix * 240 pix
+// -- with 12bpp pixels, 2 pixels = 3 bytes
+// -- memory size = 320 * 240 * 3 / 2 = 115200
+uint8_t* ptrScreen;
+
 FeedbackLed mainLed;
 GeneralPurposeInputOutput *gpio;
 SpiSimplistEsp32 *spi;
@@ -118,6 +125,40 @@ void app_main() {
     // ====[ PREPARE ]====
     ESP_LOGI(TAG_MAIN, "Start of app_main()");
     ESP_LOGI(TAG_MAIN, "Start of app_main() -- warn");
+
+    // memory setup
+    ptrScreen = (uint8_t*) heap_caps_malloc(115200, MALLOC_CAP_DMA) ;
+    if (nullptr == ptrScreen) {
+        ESP_LOGE(TAG_MAIN, "COULD NOT ALLOCATE MEMORY");
+    } else {
+        ESP_LOGI(TAG_MAIN, "Initialize screen memory...");
+        // can initialise memory
+        uint8_t red, green, blue;
+        uint8_t byte;
+        uint8_t* current = ptrScreen;
+        for (uint8_t line = 0 ; line < 240 ; line++) {
+            green = line & 0xf ;
+            for (uint8_t band = 0; band < 5 ; band++) {
+                red = (band > 0) ? (((1<<band) - 1) & 0xf) : 0;
+                for (blue = 0 ; blue < 16 ; blue++) {
+                    // each pair of pixels = 3 bytes
+                    // first byte : RG
+                    byte = (red << 4) | green ;
+                    *current = byte ;
+                    ++current;
+                    // second byte : BR
+                    byte = (blue << 4) | red ;
+                    *current = byte ;
+                    ++current;
+                    // third byte : GB
+                    byte = (green << 4) | blue ;
+                    *current = byte ;
+                    ++current;
+                }
+            }
+        }
+    }
+
 
     // setup gpio
     gpio = (new GeneralPurposeInputOutput())->withDigital(new DigitalInputOutputEsp32());
@@ -198,20 +239,32 @@ void app_main() {
     mainLed.setFeedbackSequenceAndLoop(FeedbackSequence::BLINK_THRICE);
 
     // ====[ EXECUTE ]====
-    // ~~~~[fill screen by filling 8x8 blocs of solid color 0xfdb]~~~~
-    for (uint16_t i = 0; i < 240; i += 8) {     // line
-        for (uint16_t j = 0; j < 240; j += 8) { // col
-            lcd7789->await(lcd7789->caset(j, j + 7));
-            lcd7789->await(lcd7789->raset(i, i + 7));
-            lcd7789->await(lcd7789->ramwr(96, (uint8_t *)RGB_DATA + 24));
+    if (nullptr == ptrScreen) {
+        // ~~~~[fill screen by filling 8x8 blocs of solid color 0xfdb]~~~~
+        for (uint16_t i = 0; i < 240; i += 8) {     // line
+            for (uint16_t j = 0; j < 240; j += 8) { // col
+                lcd7789->await(lcd7789->caset(j, j + 7));
+                lcd7789->await(lcd7789->raset(i, i + 7));
+                lcd7789->await(lcd7789->ramwr(96, (uint8_t *)RGB_DATA + 24));
+            }
         }
-    }
-    // ~~~~[clear screen by filling 8x8 blocs of solid black (0x000)]~~~~
-    for (uint16_t i = 0; i < 240; i += 8) {     // line
-        for (uint16_t j = 0; j < 240; j += 8) { // col
-            lcd7789->await(lcd7789->caset(j, j + 7));
-            lcd7789->await(lcd7789->raset(i, i + 7));
-            lcd7789->await(lcd7789->ramwr(96, (uint8_t *)RGB_DATA + 120));
+        // ~~~~[clear screen by filling 8x8 blocs of solid black (0x000)]~~~~
+        for (uint16_t i = 0; i < 240; i += 8) {     // line
+            for (uint16_t j = 0; j < 240; j += 8) { // col
+                lcd7789->await(lcd7789->caset(j, j + 7));
+                lcd7789->await(lcd7789->raset(i, i + 7));
+                lcd7789->await(lcd7789->ramwr(96, (uint8_t *)RGB_DATA + 120));
+            }
+        }
+    } else {
+        ESP_LOGI(TAG_MAIN, "Copy screen memory...");
+        // copy ptrScreen line by line
+        lcd7789->await(lcd7789->caset(0, 239));
+        uint8_t* ptrLine = ptrScreen ;
+        for (uint16_t row = 0; row < 240; row++) {
+            lcd7789->await(lcd7789->raset(row, row));
+            lcd7789->await(lcd7789->ramwr(360, ptrLine));
+            ptrLine += 360 ;
         }
     }
     // ~~~~[plot at (8,8), color 0xfff]~~~~
