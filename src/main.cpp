@@ -137,11 +137,23 @@ void app_main() {
         uint8_t byte;
         uint8_t* current = ptrScreen;
         for (uint8_t line = 0 ; line < 240 ; line++) {
-            green = line & 0xf ;
+            green = (line >> 4) & 0xf ;
             for (uint8_t band = 0; band < 5 ; band++) {
-                red = (band > 0) ? (((1<<band) - 1) & 0xf) : 0;
+                red = (band > 0) ? ((band * 4 - 1) & 0xf) : 0;
                 for (blue = 0 ; blue < 16 ; blue++) {
                     // each pair of pixels = 3 bytes
+                    // first byte : RG
+                    byte = (red << 4) | green ;
+                    *current = byte ;
+                    ++current;
+                    // second byte : BR
+                    byte = (blue << 4) | red ;
+                    *current = byte ;
+                    ++current;
+                    // third byte : GB
+                    byte = (green << 4) | blue ;
+                    *current = byte ;
+                    ++current;
                     // first byte : RG
                     byte = (red << 4) | green ;
                     *current = byte ;
@@ -264,7 +276,7 @@ void app_main() {
         for (uint16_t row = 0; row < 240; row++) {
             lcd7789->await(lcd7789->raset(row, row));
             lcd7789->await(lcd7789->ramwr(360, ptrLine));
-            ptrLine += 360 ;
+            ptrLine += 480 ;
         }
     }
     // ~~~~[plot at (8,8), color 0xfff]~~~~
