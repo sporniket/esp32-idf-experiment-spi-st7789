@@ -35,6 +35,8 @@
 #include "SpiSimplistEsp32.hpp"
 #include "St7789Esp32.hpp"
 
+#include "MallocSimpleRegistry.hpp"
+
 static const char *TAG_MAIN = "main";
 
 /**
@@ -81,6 +83,7 @@ FeedbackLed mainLed;
 GeneralPurposeInputOutput *gpio;
 SpiSimplistEsp32 *spi;
 St7789Esp32 *lcd7789;
+MallocSimpleRegistry mallocRegistry;
 
 class LedUpdaterTask : public Task {
     public:
@@ -127,8 +130,8 @@ void app_main() {
     ESP_LOGI(TAG_MAIN, "Start of app_main() -- warn");
 
     // memory setup
-    ptrScreen = (uint8_t*) heap_caps_malloc(115200, MALLOC_CAP_DMA) ;
-    if (nullptr == ptrScreen) {
+    mallocRegistry["MainFrameBuffer"] = new MallocSimpleDescriptor(115200, true, heap_caps_malloc(115200, MALLOC_CAP_DMA)) ;
+    if (!mallocRegistry.contains("MainFrameBuffer") || !mallocRegistry["MainFrameBuffer"]->isActuallyAllocated()) {
         ESP_LOGE(TAG_MAIN, "COULD NOT ALLOCATE MEMORY");
     } else {
         ESP_LOGI(TAG_MAIN, "Initialize screen memory...");
@@ -170,6 +173,7 @@ void app_main() {
             }
         }
     }
+    ptrScreen = (uint8_t*) mallocRegistry["MainFrameBuffer"]->getStart() ;
 
 
     // setup gpio
