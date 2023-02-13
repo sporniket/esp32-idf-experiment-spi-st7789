@@ -29,45 +29,7 @@ menu "WEATHER CENTRAL"
 		help
 			This label will be displayed when querying about the device manufacturer.
 
-	menu "Control panel mapping"
-
-		config PIN_STATUS_MAIN
-			int "Main LED GPIO number"
-			range 0 34
-			default 27
-			help
-				GPIO number (IOxx) for the 'Main status' LED.
-
-		config PIN_BUTTON_MENU
-			int "BUTTON 'MENU' GPIO number"
-			range 0 39
-			default 39
-			help
-				GPIO number (IOxx) for the button panel : 'menu'/'ok'.
-
-		config PIN_BUTTON_BACK
-			int "BUTTON 'BACK' GPIO number"
-			range 0 39
-			default 36
-			help
-				GPIO number (IOxx) for the button panel : 'back'/'cancel'.
-
-		config PIN_BUTTON_UP
-			int "BUTTON 'UP' GPIO number"
-			range 0 39
-			default 34
-			help
-				GPIO number (IOxx) for the button panel : 'up'.
-
-		config PIN_BUTTON_DOWN
-			int "BUTTON 'DOWN' GPIO number"
-			range 0 39
-			default 35
-			help
-				GPIO number (IOxx) for the button panel : 'down'.
-
-	endmenu #"Control panel mapping"
-
+	rsource "Kconfig-control-panel-mapping.projbuild"
 	rsource "Kconfig-spi-host.projbuild"
 	rsource "Kconfig-st7789.projbuild"
 
