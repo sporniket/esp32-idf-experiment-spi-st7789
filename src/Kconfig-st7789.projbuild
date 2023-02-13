@@ -1,0 +1,65 @@
+# Copyright 2021,2022,2023 David SPORN
+# ---
+# This file is part of 'Weather Central'.
+# ---
+# 'Weather Central' is free software: you can redistribute it and/or 
+# modify it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or 
+# (at your option) any later version.
+
+# 'Weather Central' is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+# Public License for more details.
+
+# You should have received a copy of the GNU General Public License along 
+# with 'Weather Central'. If not, see <https://www.gnu.org/licenses/>. 
+
+menuconfig HAVE_ST7789
+	bool "Use ST7789 based display"
+
+if HAVE_ST7789
+
+	config PIN_ST7789_DATA_COMMAND
+		int "ST7789 DC GPIO number"
+		range 0 33
+		default 26
+		help
+			GPIO number (IOxx) for the ST7789 Data/Command signal.
+
+	config PIN_ST7789_RESET
+		int "ST7789 RESET GPIO number"
+		range 0 33
+		default 25
+		help
+			GPIO number (IOxx) for the ST7789 Data/Command signal.
+
+	config ST7789_WIDTH
+		int "Screen width"
+		range 0 999
+		default 240
+		help
+			The width resolution of the screen.
+
+	config ST7789_HEIGHT
+		int "Screen height"
+		range 0 999
+		default 240
+		help
+			The height resolution of the screen.
+
+	config ST7789_OFFSETX
+		int "X offset"
+		range 0 99
+		default 0
+		help
+			Offset along X.
+
+	config ST7789_OFFSETY
+		int "Y offset"
+		range 0 99
+		default 0
+		help
+			Offset along Y.
+
+endif

@@ -69,54 +69,6 @@ menu "WEATHER CENTRAL"
 	endmenu #"Control panel mapping"
 
 	rsource "Kconfig-spi-host.projbuild"
-
-	menuconfig HAVE_ST7789
-		bool "Use ST7789 based display"
-
-	if HAVE_ST7789
-
-		config PIN_ST7789_DATA_COMMAND
-			int "ST7789 DC GPIO number"
-			range 0 33
-			default 26
-			help
-				GPIO number (IOxx) for the ST7789 Data/Command signal.
-
-		config PIN_ST7789_RESET
-			int "ST7789 RESET GPIO number"
-			range 0 33
-			default 25
-			help
-				GPIO number (IOxx) for the ST7789 Data/Command signal.
-
-		config ST7789_WIDTH
-			int "Screen width"
-			range 0 999
-			default 240
-			help
-				The width resolution of the screen.
-
-		config ST7789_HEIGHT
-			int "Screen height"
-			range 0 999
-			default 240
-			help
-				The height resolution of the screen.
-
-		config ST7789_OFFSETX
-			int "X offset"
-			range 0 99
-			default 0
-			help
-				Offset along X.
-
-		config ST7789_OFFSETY
-			int "Y offset"
-			range 0 99
-			default 0
-			help
-				Offset along Y.
-
-	endif
+	rsource "Kconfig-st7789.projbuild"
 
 endmenu #"WEATHER CENTRAL"
