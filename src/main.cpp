@@ -37,6 +37,9 @@
 
 #include "MallocSimpleRegistry.hpp"
 
+#include "ColorRgb48Bpp.hpp"
+#include "FrameBuffer12Bpp.hpp"
+
 static const char *TAG_MAIN = "main";
 
 /**
@@ -77,7 +80,8 @@ DRAM_ATTR static const uint8_t RGB_DATA[] = {
 // -- screen size = 320 pix * 240 pix
 // -- with 12bpp pixels, 2 pixels = 3 bytes
 // -- memory size = 320 * 240 * 3 / 2 = 115200
-uint8_t* ptrScreen;
+uint8_t *ptrScreen;
+FrameBuffer12Bpp *frambuff;
 
 FeedbackLed mainLed;
 GeneralPurposeInputOutput *gpio;
@@ -130,52 +134,37 @@ void app_main() {
     ESP_LOGI(TAG_MAIN, "Start of app_main() -- warn");
 
     // memory setup
-    mallocRegistry["MainFrameBuffer"] = new MallocSimpleDescriptor(115200, true, heap_caps_malloc(115200, MALLOC_CAP_DMA)) ;
+    mallocRegistry["MainFrameBuffer"] =
+            new MallocSimpleDescriptor(115200, true, heap_caps_malloc(115200, MALLOC_CAP_DMA));
     if (!mallocRegistry.contains("MainFrameBuffer") || !mallocRegistry["MainFrameBuffer"]->isActuallyAllocated()) {
         ESP_LOGE(TAG_MAIN, "COULD NOT ALLOCATE MEMORY");
+        for (;;) {
+        } // do not go further
     } else {
-        ESP_LOGI(TAG_MAIN, "Initialize screen memory...");
+        ESP_LOGI(TAG_MAIN, "COULD ALLOCATE MEMORY");
         // can initialise memory
-        uint8_t red, green, blue;
-        uint8_t byte;
-        uint8_t* current = ptrScreen;
-        for (uint8_t line = 0 ; line < 240 ; line++) {
-            green = (line >> 4) & 0xf ;
-            for (uint8_t band = 0; band < 5 ; band++) {
-                red = (band > 0) ? ((band * 4 - 1) & 0xf) : 0;
-                for (blue = 0 ; blue < 16 ; blue++) {
-                    // each pair of pixels = 3 bytes
-                    // first byte : RG
-                    byte = (red << 4) | green ;
-                    *current = byte ;
-                    ++current;
-                    // second byte : BR
-                    byte = (blue << 4) | red ;
-                    *current = byte ;
-                    ++current;
-                    // third byte : GB
-                    byte = (green << 4) | blue ;
-                    *current = byte ;
-                    ++current;
-                    // first byte : RG
-                    byte = (red << 4) | green ;
-                    *current = byte ;
-                    ++current;
-                    // second byte : BR
-                    byte = (blue << 4) | red ;
-                    *current = byte ;
-                    ++current;
-                    // third byte : GB
-                    byte = (green << 4) | blue ;
-                    *current = byte ;
-                    ++current;
+        ptrScreen = (uint8_t *)(mallocRegistry["MainFrameBuffer"]->getStart());
+        ESP_LOGI(TAG_MAIN, "Instanciate framebuffer using buffer at %p...", (void *)ptrScreen);
+        frambuff = new FrameBuffer12Bpp(CONFIG_ST7789_WIDTH, CONFIG_ST7789_HEIGHT, ptrScreen);
+        ESP_LOGI(TAG_MAIN, "Initialize screen memory...");
+        ColorRgb48Bpp color(0, 0, 0);
+        for (uint32_t line = 0; line < frambuff->getHeight(); line++) {
+            uint32_t x = 0;
+            color.green = ((line >> 4) & 0xf) << 12;
+            for (uint8_t band = 0; band < 5 && x < frambuff->getWidth(); band++) {
+                color.red = ((band > 0) ? ((band * 4 - 1) & 0xf) : 0) << 12;
+                for (uint8_t blue = 0; blue < 16 && x < frambuff->getWidth(); blue++) {
+                    color.blue = blue << 12;
+                    frambuff->setActiveColor(&color);
+                    frambuff->point(x++, line);
+                    frambuff->point(x++, line);
+                    frambuff->point(x++, line);
                 }
             }
         }
     }
-    ptrScreen = (uint8_t*) mallocRegistry["MainFrameBuffer"]->getStart() ;
 
-
+    ESP_LOGI(TAG_MAIN, "Initialize gpios...");
     // setup gpio
     gpio = (new GeneralPurposeInputOutput())->withDigital(new DigitalInputOutputEsp32());
     // control panel
@@ -244,6 +233,7 @@ void app_main() {
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     // Initialize the LCD
+    ESP_LOGI(TAG_MAIN, "Initialize LCD...");
     // setup ST7789 (D/C pin, reset pin, backlight pin)
     lcd7789 = St7789Esp32::define()                                        //
                       ->withSpiDeviceHandler(spi->getDevice(SPI2_HOST, 0)) //
@@ -254,6 +244,7 @@ void app_main() {
     // -- send COLMOD(0x53) // (262k RGB, 12bpps) --> done by the instanciation
     mainLed.setFeedbackSequenceAndLoop(FeedbackSequence::BLINK_THRICE);
 
+    ESP_LOGI(TAG_MAIN, "Start drawing...");
     // ====[ EXECUTE ]====
     if (nullptr == ptrScreen) {
         // ~~~~[fill screen by filling 8x8 blocs of solid color 0xfdb]~~~~
@@ -273,15 +264,17 @@ void app_main() {
             }
         }
     } else {
-        ESP_LOGI(TAG_MAIN, "Copy screen memory...");
+        ESP_LOGI(TAG_MAIN, "BEGIN Copy screen memory...");
         // copy ptrScreen line by line
-        lcd7789->await(lcd7789->caset(0, 239));
-        uint8_t* ptrLine = ptrScreen ;
-        for (uint16_t row = 0; row < 240; row++) {
-            lcd7789->await(lcd7789->raset(row, row));
-            lcd7789->await(lcd7789->ramwr(360, ptrLine));
-            ptrLine += 480 ;
+        lcd7789->await(lcd7789->caset(0, frambuff->getWidth() - 1));
+        uint8_t *currentData = ptrScreen;
+        uint32_t wrSize = (frambuff->getWidth() + (frambuff->getWidth() >> 1)) * 4;
+        for (uint32_t line = 0; line < frambuff->getHeight(); line += 4) {
+            lcd7789->await(lcd7789->raset(line, line + 3));
+            lcd7789->await(lcd7789->ramwr(wrSize, currentData));
+            currentData += wrSize;
         }
+        ESP_LOGI(TAG_MAIN, "DONE Copy screen memory.");
     }
     // ~~~~[plot at (8,8), color 0xfff]~~~~
     // ST7789 --> CASET(8,8)
