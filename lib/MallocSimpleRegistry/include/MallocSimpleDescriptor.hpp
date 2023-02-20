@@ -36,10 +36,10 @@ class MallocSimpleDescriptor {
     virtual ~MallocSimpleDescriptor();
     MallocSimpleDescriptor(uint32_t sizeInBytes, bool isDmaCapable, void *actualMalloc)
         : size(sizeInBytes), dmaCapable(isDmaCapable), start(actualMalloc) {}
-    bool isActuallyAllocated() { return nullptr == start; }
+    bool isActuallyAllocated() { return nullptr != start; }
     bool isDmaCapable() { return dmaCapable; }
-    bool getSize() { return size; }
-    bool getStart() { return start; }
+    uint32_t getSize() { return size; }
+    void * getStart() { return start; }
 };
 
 #endif
