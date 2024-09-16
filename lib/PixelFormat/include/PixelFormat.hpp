@@ -8,6 +8,7 @@
 // esp32 includes
 
 // project includes
+#include "StorageUnit.hpp"
 
 // write code here
 
@@ -28,17 +29,17 @@ enum class PixelType { INDEXED, RGB };
  * @brief How the pixels are organized in memory.
  * ```
  *
- * Either `INTERLEAVED` : a group of pixels are coded together by destructuring their bits and gathering them togethers,
+ * Either `INTERLEAVED` (`i`): a group of pixels are coded together by destructuring their bits and gathering them togethers,
  * starting from all the least significant bits, up to the most significant ones ; for a group of bits, the leftest one
  * is for the leftest pixel, and so on.
  *
- * Or `INTERLEAVED_BE` : like `INTERLEAVED`, but the restructuring starts from the most significant bits down to the
+ * Or `INTERLEAVED_BE` (`ibe`): like `INTERLEAVED`, but the restructuring starts from the most significant bits down to the
  * least significant ones;
  *
- * Or `PROGRESSIVE` : a single pixel uses an integer number of bytes to encode its value, then comes the next pixel
+ * Or `PROGRESSIVE` (`p`): a single pixel uses an integer number of bytes to encode its value, then comes the next pixel
  * using another cluster of bytes, and so on.
  *
- * Or `PROGRESSIVE_PACKED` : a single pixel uses an partial number of bytes to encode its value, then comes the next
+ * Or `PROGRESSIVE_PACKED` (`c`): a single pixel uses an partial number of bytes to encode its value, then comes the next
  * pixel starting by finishing the last byte before continuing to the next byte, and so on. For exemple, with 4 bits per
  * pixel, two pixels can occupy the same byte.
  *
@@ -130,91 +131,6 @@ class RGBFormat {
 };
 
 /**
- * @brief Describe how a multiple-byte value is serialized.
- * ```
- *
- * Either `BIG_ENDIAN` : the most significant byte is stored first, the least significant one comes last.
- *
- * Or `LITTLE_ENDIAN` : the least significant byte is stored first, the most significant comes last.
- *
- */
-enum class StorageEndianness { BIG_ENDIAN, LITTLE_ENDIAN };
-
-/**
- * @brief Description of the unit of storage in memory.
- * ```
- *
- * The unit of storage is first described by its width in bits. It is usually a multiple of 8, in other words a number
- * of bytes.
- *
- * Then, for a width requiring multiple bytes, endianness is specified.
- *
- */
-class StorageUnitFormat {
-    public:
-    /**
-     * @brief Full constructor.
-     *
-     * @param width the width of the unit of storage.
-     * @param endianness endianness for multi-byte values.
-     */
-    StorageUnitFormat(uint8_t width, StorageEndianness endianness) : width(width), endianness(endianness) {}
-
-    /**
-     * @brief Get the width of the unit storage.
-     *
-     * @return uint8_t the width of the unit storage.
-     */
-    uint8_t getWidth() const { return width; }
-
-    /**
-     * @brief Get the endianness of the unit storage.
-     *
-     * @return StorageEndianness the endianness of the unit storage.
-     */
-    StorageEndianness getEndianness() const { return endianness; }
-
-    private:
-    /**
-     * @brief Storage of the width of the storage required.
-     */
-    const uint8_t width;
-
-    /**
-     * @brief Endianness of the storage.
-     */
-    const StorageEndianness endianness;
-};
-
-// Builtin storage units
-
-/**
- * @brief Usual byte array.
- */
-static const StorageUnitFormat SINGLE_BYTE(8, StorageEndianness::BIG_ENDIAN);
-
-/**
- * @brief 16-bits value, Big endian.
- *
- * For e.g. the Atari ST, RGB555, or RGB565.
- */
-static const StorageUnitFormat DOUBLE_BYTES_BE(16, StorageEndianness::BIG_ENDIAN);
-
-/**
- * @brief 24-bits value, Big endian.
- *
- * For e.g. RGB666, RGB888.
- */
-static const StorageUnitFormat TRIPLE_BYTES_BE(24, StorageEndianness::BIG_ENDIAN);
-
-/**
- * @brief 32-bits value, Big endian.
- *
- * For e.g. 24-bits value and still keep each pixel location even-byte aligned.
- */
-static const StorageUnitFormat QUADRUPLE_BYTES_BE(32, StorageEndianness::BIG_ENDIAN);
-
-/**
  * @brief Description of the format of pixels.
  * ```
  *
@@ -234,6 +150,79 @@ static const StorageUnitFormat QUADRUPLE_BYTES_BE(32, StorageEndianness::BIG_END
  */
 class PixelFormat {
     public:
+    // ======== Builtins ========
+    // Indexed builtins formats
+    /**
+     * @brief Monochrome pixel (1bpp) format, for e.g. OLED monochrome displays.
+     */
+    static const PixelFormat PixelFormat_i1i_8be;
+
+    /**
+     * @brief Monochrome pixel (1bpp) format with 16bits interleaving, like so called "high resolution" on the Atari
+     * ST..
+     */
+    static const PixelFormat PixelFormat_i1i;
+
+    /**
+     * @brief 4 colours pixel (2bpp) format with 16bits interleaving, like so called "medium resolution" on the Atari
+     * ST.
+     */
+    static const PixelFormat PixelFormat_i2i;
+
+    /**
+     * @brief 16 colours pixel (4bpp) format with 16bits interleaving, like so called "low resolution" on the Atari ST.
+     */
+    static const PixelFormat PixelFormat_i4i;
+
+    /**
+     * @brief 256 colours pixel (8bpp) format with 16bits interleaving, like on the Atari Falcon 030.
+     */
+    static const PixelFormat PixelFormat_i8i;
+
+    /**
+     * @brief 256 colours pixel (8bpp) format, with progressive format like VGA resolution on PC.
+     */
+    static const PixelFormat PixelFormat_i8p;
+
+    /**
+     * @brief RGB pixel stored on a single byte : 8 levels of RED and GREEN, 4 levels of BLUE.
+     */
+    static const PixelFormat PixelFormat_rgb332;
+
+    /**
+     * @brief RGB pixel stored on a 12 bits (1 byte and an half) in packed format : 16 levels of RED, GREEN and BLUE.
+     *
+     * That format can be used on ST7789 displays.
+     */
+    static const PixelFormat PixelFormat_rgb444c;
+
+    /**
+     * @brief RGB pixel stored on two bytes, big endian : 32 levels of RED, GREEN and BLUE.
+     */
+    static const PixelFormat PixelFormat_rgb555;
+
+    /**
+     * @brief RGB pixel stored on two bytes, big endian : 32 levels of RED and BLUE, 64 levels of GREEN.
+     *
+     * Like the so called "True Color" mode of the Atari Falcon 030.
+     */
+    static const PixelFormat PixelFormat_rgb565;
+
+    /**
+     * @brief RGB pixel stored on three bytes, big endian : 64 levels of RED, GREEN, and BLUE.
+     *
+     * That format can be used on ST7789 displays.
+     */
+    static const PixelFormat PixelFormat_rgb666;
+
+    /**
+     * @brief RGB pixel stored on three bytes, big endian : 256 levels of RED, GREEN, and BLUE.
+     *
+     * The usual 24bpp pixel.
+     */
+    static const PixelFormat PixelFormat_rgb888;
+
+    // ======== Code ========
     /**
      * @brief Constructor for pixels described as values designated an indexed color.
      *
@@ -305,74 +294,5 @@ class PixelFormat {
      */
     const StorageUnitFormat storage;
 };
-
-// Indexed builtins formats
-/**
- * @brief Monochrome pixel (1bpp) format, for e.g. OLED monochrome displays.
- */
-static const PixelFormat PixelFormat_i1i_8be(1, PixelLayout::INTERLEAVED, SINGLE_BYTE);
-
-/**
- * @brief Monochrome pixel (1bpp) format with 16bits interleaving, like so called "high resolution" on the Atari ST..
- */
-static const PixelFormat PixelFormat_i1i(1, PixelLayout::INTERLEAVED, DOUBLE_BYTES_BE);
-
-/**
- * @brief 4 colours pixel (2bpp) format with 16bits interleaving, like so called "medium resolution" on the Atari ST.
- */
-static const PixelFormat PixelFormat_i2i(2, PixelLayout::INTERLEAVED, DOUBLE_BYTES_BE);
-
-/**
- * @brief 16 colours pixel (4bpp) format with 16bits interleaving, like so called "low resolution" on the Atari ST.
- */
-static const PixelFormat PixelFormat_i4i(4, PixelLayout::INTERLEAVED, DOUBLE_BYTES_BE);
-
-/**
- * @brief 256 colours pixel (8bpp) format with 16bits interleaving, like on the Atari Falcon 030.
- */
-static const PixelFormat PixelFormat_i8i(8, PixelLayout::INTERLEAVED, DOUBLE_BYTES_BE);
-
-/**
- * @brief 256 colours pixel (8bpp) format, with progressive format like VGA resolution on PC.
- */
-static const PixelFormat PixelFormat_i8p(8, PixelLayout::PROGRESSIVE, SINGLE_BYTE);
-
-/**
- * @brief RGB pixel stored on a single byte : 8 levels of RED and GREEN, 4 levels of BLUE.
- */
-static const PixelFormat PixelFormat_rgb332(3, 3, 2, SINGLE_BYTE, false);
-
-/**
- * @brief RGB pixel stored on a 12 bits (1 byte and an half) : 16 levels of RED, GREEN and BLUE.
- *
- * That format can be used on ST7789 displays.
- */
-static const PixelFormat PixelFormat_rgb332(4, 4, 4, SINGLE_BYTE, true);
-
-/**
- * @brief RGB pixel stored on two bytes, big endian : 32 levels of RED, GREEN and BLUE.
- */
-static const PixelFormat PixelFormat_rgb555(5, 5, 5, DOUBLE_BYTES_BE, false);
-
-/**
- * @brief RGB pixel stored on two bytes, big endian : 32 levels of RED and BLUE, 64 levels of GREEN.
- *
- * Like the so called "True Color" mode of the Atari Falcon 030.
- */
-static const PixelFormat PixelFormat_rgb565(5, 6, 5, DOUBLE_BYTES_BE, false);
-
-/**
- * @brief RGB pixel stored on three bytes, big endian : 64 levels of RED, GREEN, and BLUE.
- *
- * That format can be used on ST7789 displays.
- */
-static const PixelFormat PixelFormat_rgb666(6, 6, 6, TRIPLE_BYTES_BE, false);
-
-/**
- * @brief RGB pixel stored on three bytes, big endian : 256 levels of RED, GREEN, and BLUE.
- *
- * The usual 24bpp pixel.
- */
-static const PixelFormat PixelFormat_rgb888(8, 8, 8, TRIPLE_BYTES_BE, false);
 
 #endif
