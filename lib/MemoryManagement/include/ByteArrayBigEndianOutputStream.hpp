@@ -38,7 +38,7 @@ public:
     ByteArrayBigEndianOutputStream& operator<<(const T& value) {
         uint8_t numBytes = sizeof(T);
 
-        if (position + numBytes >= area.getEnd()) {
+        if (position + numBytes > area.getEnd()) {
             status = ByteArrayStreamStatus::E_KO__OUT_OF_BOUND;
             return *this;
         }
