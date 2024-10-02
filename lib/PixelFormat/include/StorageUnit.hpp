@@ -14,12 +14,14 @@
  * @brief Describe how a multiple-byte value is serialized.
  * ```
  *
- * Either `BIG_ENDIAN` : the most significant byte is stored first, the least significant one comes last.
+ * Either `big_endian` : the most significant byte is stored first, the least significant one comes last.
  *
- * Or `LITTLE_ENDIAN` : the least significant byte is stored first, the most significant comes last.
+ * Or `little_endian` : the least significant byte is stored first, the most significant comes last.
+ * 
+ * Names are lower cased because unity framework define a BIG_ENDIAN macro that would collide with uppercased names.
  *
  */
-enum class StorageEndianness { BIG_ENDIAN, LITTLE_ENDIAN };
+enum class StorageEndianness { big_endian, little_endian };
 
 /**
  * @brief Description of the unit of storage in memory.
