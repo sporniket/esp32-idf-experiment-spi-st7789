@@ -155,13 +155,13 @@ class PixelFormat {
     /**
      * @brief Monochrome pixel (1bpp) format, for e.g. OLED monochrome displays.
      */
-    static const PixelFormat PixelFormat_i1i_8be;
+    static const PixelFormat I1I_8BE; //PixelFormat_i1i_8be;
 
     /**
      * @brief Monochrome pixel (1bpp) format with 16bits interleaving, like so called "high resolution" on the Atari
      * ST..
      */
-    static const PixelFormat PixelFormat_i1i;
+    static const PixelFormat I1I_16BE;//PixelFormat_i1i;
 
     /**
      * @brief 4 colours pixel (2bpp) format with 16bits interleaving, like so called "medium resolution" on the Atari
@@ -273,7 +273,7 @@ class PixelFormat {
      *
      * @return StorageUnitFormat
      */
-    StorageUnitFormat getStorage() const { return storage; }
+    const StorageUnitFormat getStorage() const { return storage; }
 
     private:
     /**

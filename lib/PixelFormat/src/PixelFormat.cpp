@@ -7,8 +7,8 @@
 // ======== Builtin instanciation ========
 
 // Indexed builtins formats
-const PixelFormat PixelFormat::PixelFormat_i1i_8be(1, PixelLayout::INTERLEAVED, StorageUnitFormat::SINGLE_BYTE);
-const PixelFormat PixelFormat::PixelFormat_i1i(1, PixelLayout::INTERLEAVED, StorageUnitFormat::DOUBLE_BYTES_BE);
+const PixelFormat PixelFormat::I1I_8BE(1, PixelLayout::INTERLEAVED, StorageUnitFormat::SINGLE_BYTE);
+const PixelFormat PixelFormat::I1I_16BE(1, PixelLayout::INTERLEAVED, StorageUnitFormat::DOUBLE_BYTES_BE);
 const PixelFormat PixelFormat::PixelFormat_i2i(2, PixelLayout::INTERLEAVED, StorageUnitFormat::DOUBLE_BYTES_BE);
 const PixelFormat PixelFormat::PixelFormat_i4i(4, PixelLayout::INTERLEAVED, StorageUnitFormat::DOUBLE_BYTES_BE);
 const PixelFormat PixelFormat::PixelFormat_i8i(8, PixelLayout::INTERLEAVED, StorageUnitFormat::DOUBLE_BYTES_BE);

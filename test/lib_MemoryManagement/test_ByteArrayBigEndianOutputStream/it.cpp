@@ -19,7 +19,7 @@ uint8_t one = 1;
 uint16_t two = 2;
 uint32_t three = 3;
 
-void test_ByteArrayBigEndianOutputStream__can_stream_values_up_to_buffer_length() {
+void __can_stream_values_up_to_buffer_length() {
     ByteArrayBigEndianOutputStream ostream(buffer);
 
     ostream << one << two;
@@ -40,7 +40,7 @@ void test_ByteArrayBigEndianOutputStream__can_stream_values_up_to_buffer_length(
     TEST_ASSERT_TRUE((1 == bufferRaw[4]));
 }
 
-void test_ByteArrayBigEndianOutputStream__is_in_error_when_pushing_more_than_it_can_store() {
+void __is_in_error_when_pushing_more_than_it_can_store() {
     ByteArrayBigEndianOutputStream ostream(buffer);
     
     ostream << three << one << one;
@@ -63,7 +63,7 @@ void test_ByteArrayBigEndianOutputStream__is_in_error_when_pushing_more_than_it_
     TEST_ASSERT_TRUE((1 == bufferRaw[4]));
 }
 
-void test_ByteArrayBigEndianOutputStream_reset__goes_back_to_the_start() {
+void reset__goes_back_to_the_start() {
     ByteArrayBigEndianOutputStream ostream(buffer);
     
     ostream << one << two;
@@ -83,7 +83,7 @@ void test_ByteArrayBigEndianOutputStream_reset__goes_back_to_the_start() {
 
 }
 
-void test_ByteArrayBigEndianOutputStream_reset__reinstate_ok_state() {
+void reset__reinstate_ok_state() {
     ByteArrayBigEndianOutputStream ostream(buffer);
     
     ostream << one << two << three;
@@ -96,9 +96,9 @@ int main(int argc, char **argv) {
     ByteArrayBigEndianOutputStream ostream(buffer);
     
     UNITY_BEGIN();
-    RUN_TEST(test_ByteArrayBigEndianOutputStream__can_stream_values_up_to_buffer_length);
-    RUN_TEST(test_ByteArrayBigEndianOutputStream__is_in_error_when_pushing_more_than_it_can_store);
-    RUN_TEST(test_ByteArrayBigEndianOutputStream_reset__goes_back_to_the_start);
-    RUN_TEST(test_ByteArrayBigEndianOutputStream_reset__reinstate_ok_state);
+    RUN_TEST(__can_stream_values_up_to_buffer_length);
+    RUN_TEST(__is_in_error_when_pushing_more_than_it_can_store);
+    RUN_TEST(reset__goes_back_to_the_start);
+    RUN_TEST(reset__reinstate_ok_state);
     UNITY_END();
 }
