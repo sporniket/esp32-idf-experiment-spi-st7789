@@ -29,19 +29,19 @@ enum class PixelType { INDEXED, RGB };
  * @brief How the pixels are organized in memory.
  * ```
  *
- * Either `INTERLEAVED` (`i`): a group of pixels are coded together by destructuring their bits and gathering them togethers,
- * starting from all the least significant bits, up to the most significant ones ; for a group of bits, the leftest one
- * is for the leftest pixel, and so on.
+ * Either `INTERLEAVED` (`i`): a group of pixels are coded together by destructuring their bits and gathering them
+ * togethers, starting from all the least significant bits, up to the most significant ones ; for a group of bits, the
+ * leftest one is for the leftest pixel, and so on.
  *
- * Or `INTERLEAVED_BE` (`ibe`): like `INTERLEAVED`, but the restructuring starts from the most significant bits down to the
- * least significant ones;
+ * Or `INTERLEAVED_BE` (`ibe`): like `INTERLEAVED`, but the restructuring starts from the most significant bits down to
+ * the least significant ones;
  *
  * Or `PROGRESSIVE` (`p`): a single pixel uses an integer number of bytes to encode its value, then comes the next pixel
  * using another cluster of bytes, and so on.
  *
- * Or `PROGRESSIVE_PACKED` (`c`): a single pixel uses an partial number of bytes to encode its value, then comes the next
- * pixel starting by finishing the last byte before continuing to the next byte, and so on. For exemple, with 4 bits per
- * pixel, two pixels can occupy the same byte.
+ * Or `PROGRESSIVE_PACKED` (`c`): a single pixel uses an partial number of bytes to encode its value, then comes the
+ * next pixel starting by finishing the last byte before continuing to the next byte, and so on. For exemple, with 4
+ * bits per pixel, two pixels can occupy the same byte.
  *
  */
 enum class PixelLayout { INTERLEAVED, INTERLEAVED_BE, PROGRESSIVE, PROGRESSIVE_PACKED };
@@ -155,13 +155,13 @@ class PixelFormat {
     /**
      * @brief Monochrome pixel (1bpp) format, for e.g. OLED monochrome displays.
      */
-    static const PixelFormat I1I_8BE; //PixelFormat_i1i_8be;
+    static const PixelFormat I1I_8BE; // PixelFormat_i1i_8be;
 
     /**
      * @brief Monochrome pixel (1bpp) format with 16bits interleaving, like so called "high resolution" on the Atari
      * ST..
      */
-    static const PixelFormat I1I_16BE;//PixelFormat_i1i;
+    static const PixelFormat I1I_16BE; // PixelFormat_i1i;
 
     /**
      * @brief 4 colours pixel (2bpp) format with 16bits interleaving, like so called "medium resolution" on the Atari
@@ -230,7 +230,7 @@ class PixelFormat {
      * @param layout the layout (interleaved or progressive).
      * @param storage format of the storage in memory.
      */
-    PixelFormat(uint8_t indexWidth, PixelLayout layout, StorageUnitFormat storage)
+    PixelFormat(uint8_t indexWidth, PixelLayout layout, const StorageUnitFormat& storage)
         : type(PixelType::INDEXED), layout(layout), format(IndexedFormat(indexWidth)), storage(storage) {}
 
     // Constructeur pour le format RGB (le layout est toujours "progressive" pour RGB)
@@ -242,7 +242,7 @@ class PixelFormat {
      * @param blueWidth required width of the BLUE level.
      * @param storage format of the storage in memory.
      */
-    PixelFormat(uint8_t redWidth, uint8_t greenWidth, uint8_t blueWidth, StorageUnitFormat storage, bool packed)
+    PixelFormat(uint8_t redWidth, uint8_t greenWidth, uint8_t blueWidth, const StorageUnitFormat& storage, bool packed)
         : type(PixelType::RGB), layout(packed ? PixelLayout::PROGRESSIVE_PACKED : PixelLayout::PROGRESSIVE),
           format(RGBFormat(redWidth, greenWidth, blueWidth)), storage(storage) {}
 
@@ -251,14 +251,21 @@ class PixelFormat {
      *
      * @return PixelType the type of pixel format.
      */
-    PixelType getType() const { return type; }
+    const PixelType getType() const { return type; }
 
     /**
      * @brief Get the layout format of the pixels.
      *
      * @return PixelLayout the layout format of the pixels.
      */
-    PixelLayout getLayout() const { return layout; }
+    const PixelLayout getLayout() const { return layout; }
+
+    /**
+     * @brief Get the format of the raw data in memory.
+     *
+     * @return StorageUnitFormat
+     */
+    const StorageUnitFormat &getStorage() const { return storage; }
 
     /**
      * @brief Get the logical storage description format.
@@ -268,31 +275,26 @@ class PixelFormat {
      */
     const std::variant<IndexedFormat, RGBFormat> &getFormat() const { return format; }
 
-    /**
-     * @brief Get the format of the raw data in memory.
-     *
-     * @return StorageUnitFormat
-     */
-    const StorageUnitFormat getStorage() const { return storage; }
-
     private:
+    /**
+     * @brief Format of the storage in memory.
+     */
+    const StorageUnitFormat& storage;
+
     /**
      * @brief Storage of the type of pixel.
      */
     const PixelType type;
+
     /**
      * @brief Storage of the type of layout.
      */
     const PixelLayout layout;
+
     /**
      * @brief Logical storage description format.
      */
     const std::variant<IndexedFormat, RGBFormat> format;
-
-    /**
-     * @brief Format of the storage in memory.
-     */
-    const StorageUnitFormat storage;
 };
 
 #endif

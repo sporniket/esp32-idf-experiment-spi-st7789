@@ -17,7 +17,7 @@
  * Either `big_endian` : the most significant byte is stored first, the least significant one comes last.
  *
  * Or `little_endian` : the least significant byte is stored first, the most significant comes last.
- * 
+ *
  * Names are lower cased because unity framework define a BIG_ENDIAN macro that would collide with uppercased names.
  *
  */
@@ -71,19 +71,24 @@ class StorageUnitFormat {
      */
     StorageUnitFormat(uint8_t width, StorageEndianness endianness) : width(width), endianness(endianness) {}
 
+    bool operator==(const StorageUnitFormat &rhs) const {
+        return (width == rhs.width) && (endianness == rhs.endianness);
+    }
+    bool operator!=(const StorageUnitFormat &rhs) const { return !operator==(rhs); }
+
     /**
      * @brief Get the width of the unit storage.
      *
      * @return uint8_t the width of the unit storage.
      */
-    uint8_t getWidth() const { return width; }
+    const uint8_t getWidth() const { return width; }
 
     /**
      * @brief Get the endianness of the unit storage.
      *
      * @return StorageEndianness the endianness of the unit storage.
      */
-    StorageEndianness getEndianness() const { return endianness; }
+    const StorageEndianness getEndianness() const { return endianness; }
 
     private:
     /**
