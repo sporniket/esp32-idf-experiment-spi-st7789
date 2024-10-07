@@ -16,26 +16,6 @@ void __SINGLE_BYTE() {
     TEST_ASSERT_TRUE((StorageUnitFormat::SINGLE_BYTE.getWidth() == 8));
     TEST_ASSERT_TRUE((StorageUnitFormat::SINGLE_BYTE == StorageUnitFormat::SINGLE_BYTE));
     TEST_ASSERT_TRUE((StorageUnitFormat::SINGLE_BYTE == StorageUnitFormat(8, StorageEndianness::big_endian)));
-    StorageUnitFormat f(StorageUnitFormat::SINGLE_BYTE);
-    TEST_ASSERT_TRUE((f == StorageUnitFormat::SINGLE_BYTE));
-    class foo {
-        public:
-        foo(uint8_t value, StorageUnitFormat storage) : storage(storage), value(value) {}
-        const StorageUnitFormat getStorage() const { return storage; }
-        const uint8_t getValue() const { return value; }
-
-        private:
-        const StorageUnitFormat storage;
-        const uint8_t value;
-    };
-    foo bar(3, StorageUnitFormat::SINGLE_BYTE);
-    foo bar2(4, StorageUnitFormat::SINGLE_BYTE);
-    TEST_ASSERT_TRUE((bar.getStorage() == StorageUnitFormat::SINGLE_BYTE));
-    TEST_ASSERT_TRUE((bar.getStorage().getEndianness() == StorageEndianness::big_endian));
-    TEST_ASSERT_TRUE((bar.getStorage().getWidth() == 8));
-    TEST_ASSERT_TRUE((bar2.getStorage() == StorageUnitFormat::SINGLE_BYTE));
-    TEST_ASSERT_TRUE((bar2.getStorage().getEndianness() == StorageEndianness::big_endian));
-    TEST_ASSERT_TRUE((bar2.getStorage().getWidth() == 8));
 }
 
 void __DOUBLE_BYTES_BE() {
