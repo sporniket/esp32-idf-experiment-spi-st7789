@@ -167,60 +167,60 @@ class PixelFormat {
      * @brief 4 colours pixel (2bpp) format with 16bits interleaving, like so called "medium resolution" on the Atari
      * ST.
      */
-    static const PixelFormat PixelFormat_i2i;
+    static const PixelFormat I2I_16BE;
 
     /**
      * @brief 16 colours pixel (4bpp) format with 16bits interleaving, like so called "low resolution" on the Atari ST.
      */
-    static const PixelFormat PixelFormat_i4i;
+    static const PixelFormat I4I_16BE;
 
     /**
      * @brief 256 colours pixel (8bpp) format with 16bits interleaving, like on the Atari Falcon 030.
      */
-    static const PixelFormat PixelFormat_i8i;
+    static const PixelFormat I8I_16BE;
 
     /**
      * @brief 256 colours pixel (8bpp) format, with progressive format like VGA resolution on PC.
      */
-    static const PixelFormat PixelFormat_i8p;
+    static const PixelFormat I8P_8BE;
 
     /**
      * @brief RGB pixel stored on a single byte : 8 levels of RED and GREEN, 4 levels of BLUE.
      */
-    static const PixelFormat PixelFormat_rgb332;
+    static const PixelFormat RGB332_8BE;
 
     /**
      * @brief RGB pixel stored on a 12 bits (1 byte and an half) in packed format : 16 levels of RED, GREEN and BLUE.
      *
      * That format can be used on ST7789 displays.
      */
-    static const PixelFormat PixelFormat_rgb444c;
+    static const PixelFormat RGB444C_12BE;
 
     /**
      * @brief RGB pixel stored on two bytes, big endian : 32 levels of RED, GREEN and BLUE.
      */
-    static const PixelFormat PixelFormat_rgb555;
+    static const PixelFormat RGB555_16BE;
 
     /**
      * @brief RGB pixel stored on two bytes, big endian : 32 levels of RED and BLUE, 64 levels of GREEN.
      *
      * Like the so called "True Color" mode of the Atari Falcon 030.
      */
-    static const PixelFormat PixelFormat_rgb565;
+    static const PixelFormat RGB565_16BE;
 
     /**
      * @brief RGB pixel stored on three bytes, big endian : 64 levels of RED, GREEN, and BLUE.
      *
      * That format can be used on ST7789 displays.
      */
-    static const PixelFormat PixelFormat_rgb666;
+    static const PixelFormat RGB666_24BE;
 
     /**
      * @brief RGB pixel stored on three bytes, big endian : 256 levels of RED, GREEN, and BLUE.
      *
      * The usual 24bpp pixel.
      */
-    static const PixelFormat PixelFormat_rgb888;
+    static const PixelFormat RGB888_24BE;
 
     // ======== Code ========
     /**
@@ -230,7 +230,7 @@ class PixelFormat {
      * @param layout the layout (interleaved or progressive).
      * @param storage format of the storage in memory.
      */
-    PixelFormat(uint8_t indexWidth, PixelLayout layout, const StorageUnitFormat& storage)
+    PixelFormat(uint8_t indexWidth, PixelLayout layout, const StorageUnitFormat &storage)
         : type(PixelType::INDEXED), layout(layout), format(IndexedFormat(indexWidth)), storage(storage) {}
 
     // Constructeur pour le format RGB (le layout est toujours "progressive" pour RGB)
@@ -242,7 +242,7 @@ class PixelFormat {
      * @param blueWidth required width of the BLUE level.
      * @param storage format of the storage in memory.
      */
-    PixelFormat(uint8_t redWidth, uint8_t greenWidth, uint8_t blueWidth, const StorageUnitFormat& storage, bool packed)
+    PixelFormat(uint8_t redWidth, uint8_t greenWidth, uint8_t blueWidth, const StorageUnitFormat &storage, bool packed)
         : type(PixelType::RGB), layout(packed ? PixelLayout::PROGRESSIVE_PACKED : PixelLayout::PROGRESSIVE),
           format(RGBFormat(redWidth, greenWidth, blueWidth)), storage(storage) {}
 
@@ -279,7 +279,7 @@ class PixelFormat {
     /**
      * @brief Format of the storage in memory.
      */
-    const StorageUnitFormat& storage;
+    const StorageUnitFormat &storage;
 
     /**
      * @brief Storage of the type of pixel.
