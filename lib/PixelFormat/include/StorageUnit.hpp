@@ -42,6 +42,13 @@ class StorageUnitFormat {
     static const StorageUnitFormat SINGLE_BYTE;
 
     /**
+     * @brief Unusual array of 12bits values. Values would be compacted to store 2 values in 3 bytes.
+     *
+     * This is for describing the RGB444 format of the ST7789
+     */
+    static const StorageUnitFormat ONE_AND_AN_HALF_BYTE_BE;
+
+    /**
      * @brief 16-bits value, Big endian.
      *
      * For e.g. the Atari ST, RGB555, or RGB565.
