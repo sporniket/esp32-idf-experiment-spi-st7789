@@ -246,6 +246,23 @@ class PixelFormat {
         : type(PixelType::RGB), layout(packed ? PixelLayout::PROGRESSIVE_PACKED : PixelLayout::PROGRESSIVE),
           format(RGBFormat(redWidth, greenWidth, blueWidth)), storage(storage) {}
 
+    bool operator==(const PixelFormat &rhs) const {
+        if (rhs.type != type)
+            return false;
+        if (type == PixelType::INDEXED) {
+            const IndexedFormat &f = std::get<IndexedFormat>(format);
+            const IndexedFormat &rhsf = std::get<IndexedFormat>(rhs.format);
+            return (f.getIndexWidth() == rhsf.getIndexWidth()) && (storage == rhs.storage) && (layout == rhs.layout);
+        } else {
+            // type == PixelType::RGB
+            const RGBFormat &f = std::get<RGBFormat>(format);
+            const RGBFormat &rhsf = std::get<RGBFormat>(rhs.format);
+            return (f.getRedWidth() == rhsf.getRedWidth()) && (f.getGreenWidth() == rhsf.getGreenWidth()) &&
+                   (f.getBlueWidth() == rhsf.getBlueWidth()) && (storage == rhs.storage) && (layout == rhs.layout);
+        }
+    }
+    bool operator!=(const PixelFormat &rhs) const { return !operator==(rhs); }
+
     /**
      * @brief Get the type of pixel format.
      *
