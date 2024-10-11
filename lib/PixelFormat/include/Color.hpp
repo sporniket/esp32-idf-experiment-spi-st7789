@@ -3,6 +3,7 @@
 
 // standard includes
 #include <cstdint>
+#include <iostream>
 
 // esp32 includes
 
@@ -64,6 +65,9 @@ class Color {
         rgb888 = (((red >> 8) & 0xFF0000) | ((green >> 16) & 0x00FF00) | ((blue >> 24) & 0x0000FF));
     }
 
+    bool operator==(const Color &rhs) const { return red == rhs.red && green == rhs.green && blue == rhs.blue; }
+    bool operator!=(const Color &rhs) const { return !operator==(rhs); }
+
     // Accesseurs pour les composantes rouge, verte et bleue
     const uint32_t getRed() const { return red; }
     const uint32_t getGreen() const { return green; }
@@ -93,6 +97,31 @@ class Color {
     uint16_t rgb565;
     uint32_t rgb666;
     uint32_t rgb888;
+};
+
+
+/**
+ * @brief Set of colors to simulate a vintage CRT screen with green phosphore (P1).
+ */
+class MonochromeGreenColors {
+    public:
+    static const Color _GREEN0;
+    static const Color _GREEN1;
+    static const Color _GREEN2;
+    static const Color _GREEN3;
+    static const Color _GREEN4;
+};
+
+/**
+ * @brief Set of colors to simulate a vintage CRT screen with ambre phosphore (P3).
+ */
+class MonochromeAmberColors {
+    public:
+    static const Color _AMBER0;
+    static const Color _AMBER1;
+    static const Color _AMBER2;
+    static const Color _AMBER3;
+    static const Color _AMBER4;
 };
 
 #endif
