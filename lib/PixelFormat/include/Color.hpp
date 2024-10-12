@@ -99,17 +99,71 @@ class Color {
     uint32_t rgb888;
 };
 
+/**
+ * @brief Set of the primary colors and orange, and their darker or lighter derivatives.
+ */
+class BaseColors {
+    public:
+    // Black to white
+    static const Color BLACK;
+    static const Color DARKER_GREY;
+    static const Color GREY;
+    static const Color WHITE;
+
+    // "Soot" colors, 0x55 per active channel else 0
+    static const Color SOOT_BLUE;
+    static const Color SOOT_GREEN;
+    static const Color SOOT_CYAN;
+    static const Color SOOT_RED;
+    static const Color SOOT_MAGENTA;
+    static const Color SOOT_YELLOW;
+
+    // "Darker" colors, 0xaa per active channel else 0
+    static const Color DARKER_BLUE;
+    static const Color DARKER_GREEN;
+    static const Color DARKER_CYAN;
+    static const Color DARKER_RED;
+    static const Color DARKER_MAGENTA;
+    static const Color DARKER_YELLOW;
+
+    // Normal colors, 0xff per active channel else 0
+    static const Color BLUE;
+    static const Color GREEN;
+    static const Color CYAN;
+    static const Color RED;
+    static const Color MAGENTA;
+    static const Color YELLOW;
+
+    // "Lighter" colors, 0xff per active channel else 0x55
+    static const Color LIGHTER_BLUE;
+    static const Color LIGHTER_GREEN;
+    static const Color LIGHTER_CYAN;
+    static const Color LIGHTER_RED;
+    static const Color LIGHTER_MAGENTA;
+    static const Color LIGHTER_YELLOW;
+
+    // "Pastel" colors, 0xff per active channel else 0xaa
+    static const Color PASTEL_BLUE;
+    static const Color PASTEL_GREEN;
+    static const Color PASTEL_CYAN;
+    static const Color PASTEL_RED;
+    static const Color PASTEL_MAGENTA;
+    static const Color PASTEL_YELLOW;
+
+    // Orange colors : R > G > B
+    static const Color DARKER_ORANGE;
+    static const Color ORANGE;
+};
 
 /**
  * @brief Set of colors to simulate a vintage CRT screen with green phosphore (P1).
  */
 class MonochromeGreenColors {
     public:
-    static const Color _GREEN0;
-    static const Color _GREEN1;
-    static const Color _GREEN2;
-    static const Color _GREEN3;
-    static const Color _GREEN4;
+    static const Color GREEN1;
+    static const Color GREEN2;
+    static const Color GREEN3;
+    static const Color GREEN4;
 };
 
 /**
@@ -117,11 +171,10 @@ class MonochromeGreenColors {
  */
 class MonochromeAmberColors {
     public:
-    static const Color _AMBER0;
-    static const Color _AMBER1;
-    static const Color _AMBER2;
-    static const Color _AMBER3;
-    static const Color _AMBER4;
+    static const Color AMBER1;
+    static const Color AMBER2;
+    static const Color AMBER3;
+    static const Color AMBER4;
 };
 
 #endif
