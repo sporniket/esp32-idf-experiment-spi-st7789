@@ -28,7 +28,7 @@ class Color {
           rgb888(((red >> 8) & 0xFF0000) | ((green >> 16) & 0x00FF00) | ((blue >> 24) & 0x0000FF)) {}
 
     // Constructeur à partir d'un format encodé
-    Color(const PixelFormat &format, uint32_t encoded) ;
+    Color(const PixelFormatEnum format, uint32_t encoded);
 
     bool operator==(const Color &rhs) const { return red == rhs.red && green == rhs.green && blue == rhs.blue; }
     bool operator!=(const Color &rhs) const { return !operator==(rhs); }
@@ -67,79 +67,77 @@ class Color {
 /**
  * @brief Set of the primary colors and orange, and their darker or lighter derivatives.
  */
-class BaseColors {
-    public:
+enum class BaseColors {
+
     // Black to white
-    static const Color BLACK;
-    static const Color DARKER_GREY;
-    static const Color GREY;
-    static const Color WHITE;
+    BLACK = 0x000000,
+    DARKER_GREY = 0x555555,
+    GREY = 0xaaaaaa,
+    WHITE = 0xffffff,
 
     // "Soot" colors, 0x55 per active channel else 0
-    static const Color SOOT_BLUE;
-    static const Color SOOT_GREEN;
-    static const Color SOOT_CYAN;
-    static const Color SOOT_RED;
-    static const Color SOOT_MAGENTA;
-    static const Color SOOT_YELLOW;
+    SOOT_BLUE = 0x000055,
+    SOOT_GREEN = 0x005500,
+    SOOT_CYAN = 0x005555,
+    SOOT_RED = 0x550000,
+    SOOT_MAGENTA = 0x550055,
+    SOOT_YELLOW = 0x555500,
 
     // "Darker" colors, 0xaa per active channel else 0
-    static const Color DARKER_BLUE;
-    static const Color DARKER_GREEN;
-    static const Color DARKER_CYAN;
-    static const Color DARKER_RED;
-    static const Color DARKER_MAGENTA;
-    static const Color DARKER_YELLOW;
+    DARKER_BLUE = 0x0000aa,
+    DARKER_GREEN = 0x00aa00,
+    DARKER_CYAN = 0x00aaaa,
+    DARKER_RED = 0xaa0000,
+    DARKER_MAGENTA = 0xaa00aa,
+    DARKER_YELLOW = 0xaaaa00,
 
     // Normal colors, 0xff per active channel else 0
-    static const Color BLUE;
-    static const Color GREEN;
-    static const Color CYAN;
-    static const Color RED;
-    static const Color MAGENTA;
-    static const Color YELLOW;
+    BLUE = 0x0000ff,
+    GREEN = 0x00ff00,
+    CYAN = 0x00ffff,
+    RED = 0xff0000,
+    MAGENTA = 0xff00ff,
+    YELLOW = 0xffff00,
 
     // "Lighter" colors, 0xff per active channel else 0x55
-    static const Color LIGHTER_BLUE;
-    static const Color LIGHTER_GREEN;
-    static const Color LIGHTER_CYAN;
-    static const Color LIGHTER_RED;
-    static const Color LIGHTER_MAGENTA;
-    static const Color LIGHTER_YELLOW;
+    LIGHTER_BLUE = 0x5555ff,
+    LIGHTER_GREEN = 0x55ff55,
+    LIGHTER_CYAN = 0x55ffff,
+    LIGHTER_RED = 0xff5555,
+    LIGHTER_MAGENTA = 0xff55ff,
+    LIGHTER_YELLOW = 0xffff55,
 
     // "Pastel" colors, 0xff per active channel else 0xaa
-    static const Color PASTEL_BLUE;
-    static const Color PASTEL_GREEN;
-    static const Color PASTEL_CYAN;
-    static const Color PASTEL_RED;
-    static const Color PASTEL_MAGENTA;
-    static const Color PASTEL_YELLOW;
+    PASTEL_BLUE = 0xaaaaff,
+    PASTEL_GREEN = 0xaaffaa,
+    PASTEL_CYAN = 0xaaffff,
+    PASTEL_RED = 0xffaaaa,
+    PASTEL_MAGENTA = 0xffaaff,
+    PASTEL_YELLOW = 0xffffaa,
 
     // Orange colors : R > G > B
-    static const Color DARKER_ORANGE;
-    static const Color ORANGE;
+    DARKER_ORANGE = 0xaa5500,
+    ORANGE = 0xffaa00,
 };
 
 /**
  * @brief Set of colors to simulate a vintage CRT screen with green phosphore (P1).
  */
-class MonochromeGreenColors {
-    public:
-    static const Color GREEN1;
-    static const Color GREEN2;
-    static const Color GREEN3;
-    static const Color GREEN4;
+enum class MonochromeGreenColors {
+    GREEN1 = 0x399b6a,
+    GREEN2 = 0x42d297,
+    GREEN3 = 0x73fdbf,
+    GREEN4 = 0xbaffe0,
 };
 
 /**
  * @brief Set of colors to simulate a vintage CRT screen with ambre phosphore (P3).
  */
-class MonochromeAmberColors {
-    public:
-    static const Color AMBER1;
-    static const Color AMBER2;
-    static const Color AMBER3;
-    static const Color AMBER4;
+enum class MonochromeAmberColors {
+    AMBER1 = 0xa17414,
+    AMBER2 = 0xd3a51a,
+    AMBER3 = 0xe5bf13,
+    AMBER4 = 0xedde8c,
 };
 
 #endif
