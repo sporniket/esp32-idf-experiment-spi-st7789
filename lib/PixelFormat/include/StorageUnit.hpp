@@ -23,6 +23,41 @@
  */
 enum class StorageEndianness { big_endian, little_endian };
 
+enum class StorageUnitFormatEnum {
+    /**
+     * @brief Usual byte array.
+     */
+    SINGLE_BYTE,
+
+    /**
+     * @brief Unusual array of 12bits values. Values would be compacted to store 2 values in 3 bytes.
+     *
+     * This is for describing the RGB444 format of the ST7789
+     */
+    ONE_AND_AN_HALF_BYTE_BE,
+
+    /**
+     * @brief 16-bits value, Big endian.
+     *
+     * For e.g. the Atari ST, RGB555, or RGB565.
+     */
+    DOUBLE_BYTES_BE,
+
+    /**
+     * @brief 24-bits value, Big endian.
+     *
+     * For e.g. RGB666, RGB888.
+     */
+    TRIPLE_BYTES_BE,
+
+    /**
+     * @brief 32-bits value, Big endian.
+     *
+     * For e.g. 24-bits value and still keep each pixel location even-byte aligned.
+     */
+    QUADRUPLE_BYTES_BE
+};
+
 /**
  * @brief Description of the unit of storage in memory.
  * ```
@@ -35,39 +70,7 @@ enum class StorageEndianness { big_endian, little_endian };
  */
 class StorageUnitFormat {
     public:
-    // ======== Builtins ========
-    /**
-     * @brief Usual byte array.
-     */
-    static const StorageUnitFormat SINGLE_BYTE;
-
-    /**
-     * @brief Unusual array of 12bits values. Values would be compacted to store 2 values in 3 bytes.
-     *
-     * This is for describing the RGB444 format of the ST7789
-     */
-    static const StorageUnitFormat ONE_AND_AN_HALF_BYTE_BE;
-
-    /**
-     * @brief 16-bits value, Big endian.
-     *
-     * For e.g. the Atari ST, RGB555, or RGB565.
-     */
-    static const StorageUnitFormat DOUBLE_BYTES_BE;
-
-    /**
-     * @brief 24-bits value, Big endian.
-     *
-     * For e.g. RGB666, RGB888.
-     */
-    static const StorageUnitFormat TRIPLE_BYTES_BE;
-
-    /**
-     * @brief 32-bits value, Big endian.
-     *
-     * For e.g. 24-bits value and still keep each pixel location even-byte aligned.
-     */
-    static const StorageUnitFormat QUADRUPLE_BYTES_BE;
+    static StorageUnitFormat* getStorageUnitFormat(StorageUnitFormatEnum id);
 
     // ======== Code ========
     /**

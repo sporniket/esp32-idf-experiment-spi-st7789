@@ -22,13 +22,13 @@ void Palette__isAVectorOfColors() {
     TEST_ASSERT_TRUE((p[1] == Color(PixelFormat::RGB888_24BE, 0xcccccc)));
     TEST_ASSERT_TRUE((p[2] == Color(PixelFormat::RGB888_24BE, 0xffffff)));
 }
-void MonochromeGreen__hasExpectedColors() {
+void MonochromeGreen_PALETTE__hasExpectedColors() {
     TEST_ASSERT_TRUE((MonochromeGreen::PALETTE.size() == 5));
-/*    TEST_ASSERT_TRUE((PaletteBuiltins::MONOCHROME_GREEN[0] == Color(PixelFormat::RGB888_24BE, 0x000000)));
-    TEST_ASSERT_TRUE((PaletteBuiltins::MONOCHROME_GREEN[1] == Color(PixelFormat::RGB888_24BE, 0x399b6a)));
-    TEST_ASSERT_TRUE((PaletteBuiltins::MONOCHROME_GREEN[2] == Color(PixelFormat::RGB888_24BE, 0x42d297)));
-    TEST_ASSERT_TRUE((PaletteBuiltins::MONOCHROME_GREEN[3] == Color(PixelFormat::RGB888_24BE, 0x73fdbf)));
-    TEST_ASSERT_TRUE((PaletteBuiltins::MONOCHROME_GREEN[4] == Color(PixelFormat::RGB888_24BE, 0xbaffe0)));*/
+    TEST_ASSERT_TRUE((BaseColors::BLACK == MonochromeGreen::PALETTE[0]));
+    TEST_ASSERT_TRUE((MonochromeGreenColors::GREEN1 == MonochromeGreen::PALETTE[1]));
+    TEST_ASSERT_TRUE((MonochromeGreenColors::GREEN2 == MonochromeGreen::PALETTE[2]));
+    TEST_ASSERT_TRUE((MonochromeGreenColors::GREEN3 == MonochromeGreen::PALETTE[3]));
+    TEST_ASSERT_TRUE((MonochromeGreenColors::GREEN4 == MonochromeGreen::PALETTE[4]));
 }
 
 void PaletteBuiltins__MONOCHROME_AMBER() {
@@ -42,7 +42,6 @@ void PaletteBuiltins__MONOCHROME_AMBER() {
 int main(int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(Palette__isAVectorOfColors);
-    RUN_TEST(MonochromeGreen__hasExpectedColors);
-    RUN_TEST(PaletteBuiltins__MONOCHROME_AMBER);
+    RUN_TEST(MonochromeGreen_PALETTE__hasExpectedColors);
     UNITY_END();
 }

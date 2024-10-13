@@ -7,17 +7,35 @@
 // ======== Builtin instanciation ========
 
 // Indexed builtins formats
-const PixelFormat PixelFormat::I1I_8BE(1, PixelLayout::INTERLEAVED, StorageUnitFormat::SINGLE_BYTE);
-const PixelFormat PixelFormat::I1I_16BE(1, PixelLayout::INTERLEAVED, StorageUnitFormat::DOUBLE_BYTES_BE);
-const PixelFormat PixelFormat::I2I_16BE(2, PixelLayout::INTERLEAVED, StorageUnitFormat::DOUBLE_BYTES_BE);
-const PixelFormat PixelFormat::I4I_16BE(4, PixelLayout::INTERLEAVED, StorageUnitFormat::DOUBLE_BYTES_BE);
-const PixelFormat PixelFormat::I8I_16BE(8, PixelLayout::INTERLEAVED, StorageUnitFormat::DOUBLE_BYTES_BE);
-const PixelFormat PixelFormat::I8P_8BE(8, PixelLayout::PROGRESSIVE, StorageUnitFormat::SINGLE_BYTE);
-const PixelFormat PixelFormat::RGB332_8BE(3, 3, 2, StorageUnitFormat::SINGLE_BYTE, false);
-const PixelFormat PixelFormat::RGB444C_12BE(4, 4, 4, StorageUnitFormat::ONE_AND_AN_HALF_BYTE_BE, true);
-const PixelFormat PixelFormat::RGB555_16BE(5, 5, 5, StorageUnitFormat::DOUBLE_BYTES_BE, false);
-const PixelFormat PixelFormat::RGB565_16BE(5, 6, 5, StorageUnitFormat::DOUBLE_BYTES_BE, false);
-const PixelFormat PixelFormat::RGB666_24BE(6, 6, 6, StorageUnitFormat::TRIPLE_BYTES_BE, false);
-const PixelFormat PixelFormat::RGB888_24BE(8, 8, 8, StorageUnitFormat::TRIPLE_BYTES_BE, false);
+PixelFormat *PixelFormat::getPixelFormat(PixelFormatEnum id) {
+    switch (id) {
+    case PixelFormatEnum::I1I_8BE:
+        return new PixelFormat(1, PixelLayout::INTERLEAVED, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::SINGLE_BYTE));
+    case PixelFormatEnum::I1I_16BE:
+        return new PixelFormat(1, PixelLayout::INTERLEAVED, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::DOUBLE_BYTES_BE));
+    case PixelFormatEnum::I2I_16BE:
+        return new PixelFormat(2, PixelLayout::INTERLEAVED, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::DOUBLE_BYTES_BE));
+    case PixelFormatEnum::I4I_16BE:
+        return new PixelFormat(4, PixelLayout::INTERLEAVED, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::DOUBLE_BYTES_BE));
+    case PixelFormatEnum::I8I_16BE:
+        return new PixelFormat(8, PixelLayout::INTERLEAVED, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::DOUBLE_BYTES_BE));
+    case PixelFormatEnum::I8P_8BE:
+        return new PixelFormat(8, PixelLayout::PROGRESSIVE, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::SINGLE_BYTE));
+    case PixelFormatEnum::RGB332_8BE:
+        return new PixelFormat(3, 3, 2, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::SINGLE_BYTE), false);
+    case PixelFormatEnum::RGB444C_12BE:
+        return new PixelFormat(4, 4, 4, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::ONE_AND_AN_HALF_BYTE_BE), true);
+    case PixelFormatEnum::RGB555_16BE:
+        return new PixelFormat(5, 5, 5, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::DOUBLE_BYTES_BE), false);
+    case PixelFormatEnum::RGB565_16BE:
+        return new PixelFormat(5, 6, 5, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::DOUBLE_BYTES_BE), false);
+    case PixelFormatEnum::RGB666_24BE:
+        return new PixelFormat(6, 6, 6, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::TRIPLE_BYTES_BE), false);
+    case PixelFormatEnum::RGB888_24BE:
+        return new PixelFormat(8, 8, 8, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::TRIPLE_BYTES_BE), false);
+    default:
+        return new PixelFormat(0, PixelLayout::INTERLEAVED, StorageUnitFormat::getStorageUnitFormat(StorageUnitFormatEnum::SINGLE_BYTE));
+    }
+}
 
 // ======== Code implementation ========
