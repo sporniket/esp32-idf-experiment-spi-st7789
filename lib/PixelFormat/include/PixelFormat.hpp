@@ -3,8 +3,8 @@
 
 // standard includes
 #include <cstdint>
-#include <variant>
 #include <memory>
+#include <variant>
 
 // esp32 includes
 
@@ -63,6 +63,9 @@ class IndexedFormat {
      */
     IndexedFormat(uint8_t indexWidth) : indexWidth(indexWidth) {}
 
+    bool operator==(const IndexedFormat &rhs) const { return indexWidth == rhs.indexWidth; }
+    bool operator!=(const IndexedFormat &rhs) const { return !operator==(rhs); }
+
     /**
      * @brief Get the width of the index.
      *
@@ -96,6 +99,11 @@ class RGBFormat {
      */
     RGBFormat(uint8_t redWidth, uint8_t greenWidth, uint8_t blueWidth)
         : redWidth(redWidth), greenWidth(greenWidth), blueWidth(blueWidth) {}
+
+    bool operator==(const RGBFormat &rhs) const {
+        return redWidth == rhs.redWidth && greenWidth == rhs.greenWidth && blueWidth == rhs.blueWidth;
+    }
+    bool operator!=(const RGBFormat &rhs) const { return !operator==(rhs); }
 
     /**
      * @brief Get the width of the RED level.
@@ -227,7 +235,7 @@ enum class PixelFormatEnum {
  */
 class PixelFormat {
     public:
-    static PixelFormat* getPixelFormat(PixelFormatEnum id) ;
+    static PixelFormat *getPixelFormat(PixelFormatEnum id);
 
     // ======== Code ========
     /**
@@ -238,7 +246,8 @@ class PixelFormat {
      * @param storage format of the storage in memory.
      */
     PixelFormat(uint8_t indexWidth, PixelLayout layout, const StorageUnitFormat *storage)
-        : type(PixelType::INDEXED), layout(layout), format(IndexedFormat(indexWidth)), storage(std::make_unique<StorageUnitFormat>(*storage)) {}
+        : type(PixelType::INDEXED), layout(layout), format(IndexedFormat(indexWidth)),
+          storage(std::make_unique<StorageUnitFormat>(*storage)) {}
 
     // Constructeur pour le format RGB (le layout est toujours "progressive" pour RGB)
     /**
@@ -254,18 +263,17 @@ class PixelFormat {
           format(RGBFormat(redWidth, greenWidth, blueWidth)), storage(std::make_unique<StorageUnitFormat>(*storage)) {}
 
     bool operator==(const PixelFormat &rhs) const {
-        if (rhs.type != type)
+        if (rhs.type != type || *storage != *(rhs.storage) || layout != rhs.layout)
             return false;
         if (type == PixelType::INDEXED) {
             const IndexedFormat &f = std::get<IndexedFormat>(format);
             const IndexedFormat &rhsf = std::get<IndexedFormat>(rhs.format);
-            return (f.getIndexWidth() == rhsf.getIndexWidth()) && (storage == rhs.storage) && (layout == rhs.layout);
+            return f == rhsf;
         } else {
             // type == PixelType::RGB
             const RGBFormat &f = std::get<RGBFormat>(format);
             const RGBFormat &rhsf = std::get<RGBFormat>(rhs.format);
-            return (f.getRedWidth() == rhsf.getRedWidth()) && (f.getGreenWidth() == rhsf.getGreenWidth()) &&
-                   (f.getBlueWidth() == rhsf.getBlueWidth()) && (storage == rhs.storage) && (layout == rhs.layout);
+            return f == rhsf;
         }
     }
     bool operator!=(const PixelFormat &rhs) const { return !operator==(rhs); }
