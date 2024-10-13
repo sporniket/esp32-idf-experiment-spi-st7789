@@ -71,8 +71,11 @@ enum class BaseColors {
 
     // Black to white
     BLACK = 0x000000,
+    GREY_44 = 0x444444,
     DARKER_GREY = 0x555555,
+    GREY_88 = 0x888888,
     GREY = 0xaaaaaa,
+    GREY_BB = 0xbbbbbb,
     WHITE = 0xffffff,
 
     // "Soot" colors, 0x55 per active channel else 0
