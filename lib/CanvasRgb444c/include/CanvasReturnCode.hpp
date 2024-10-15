@@ -10,6 +10,7 @@
 
 enum class CanvasReturnCode {
     OK = 0,
+    KO__ERROR, // general error
     // == out of bounds ==
     KO__OUT_OF_BOUNDS,                            // unspecified source
     KO__OUT_OF_BOUNDS__CANVAS_INVALID_DIMENSIONS, // canvas width and height MUST be > 0

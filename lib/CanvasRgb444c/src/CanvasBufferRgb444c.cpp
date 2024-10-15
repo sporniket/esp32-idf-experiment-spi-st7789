@@ -108,3 +108,43 @@ void CanvasBufferRgb444c::setupColorBrushes(uint16_t c, uint8_t *even, uint8_t *
     both[1] = even[1] | odd[0]; // BR
     both[2] = odd[1];           // GB
 }
+
+CanvasReturnCode CanvasBufferRgb444c::unsafe_HBrensenHamLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+    // called only when :
+    // * x2 > x1
+    // * y2 != y1
+    // * (x2 - x1) > abs(y2 - y1)
+
+    uint16_t dx = x2 - x1;
+    uint16_t dx2 = dx << 1; // = dx * 2;
+    uint16_t dy2 ;
+    int16_t dydraw;
+
+    if (y2 > y1) {
+        dy2 = (y2 - y1) << 1;
+        dydraw = 1;
+    } else {
+        dy2 = (y1 - y2) << 1;
+        dydraw = -1;
+    }
+
+    uint16_t xmark = x1;
+    uint16_t ymark = y1;
+    uint16_t len = 1;
+    int16_t sigma = 0;
+
+    for (uint16_t i = 1; i <= dx; i++) {
+        sigma += dy2;
+        if (sigma > dx) {
+            hline(xmark, ymark, len);
+            ymark += dydraw;
+            xmark += len;
+            len = 0;
+        } else {
+            len++;
+        }
+    }
+
+    hline(xmark, ymark, len);
+    return CanvasReturnCode::OK;
+}

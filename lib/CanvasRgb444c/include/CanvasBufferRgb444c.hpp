@@ -25,11 +25,16 @@ class CanvasBufferRgb444c {
 
     CanvasReturnCode unsafe_vline(uint16_t x, uint16_t y, uint16_t h);
 
+    CanvasReturnCode unsafe_HBrensenHamLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+
     void setColor(Color &color) { setupColorBrushes(color.asRgb444(), color_even, color_odd, color_both); }
 
     void setBackgroundColor(Color &color) {
         setupColorBrushes(color.asRgb444(), backgroundColor_even, backgroundColor_odd, backgroundColor_both);
     }
+
+    const uint16_t getWidth() const {return width;}
+    const uint16_t getHeight() const {return height;}
 
     private:
     void changeSinglePixel(uint8_t *pairStart, bool odd, uint8_t *c_odd, uint8_t *c_even) {
