@@ -139,7 +139,8 @@ CanvasReturnCode CanvasBufferRgb444c::unsafe_HBrensenHamLine(uint16_t x1, uint16
             hline(xmark, ymark, len);
             ymark += dydraw;
             xmark += len;
-            len = 0;
+            len = 1;
+            sigma -= dx2;
         } else {
             len++;
         }
