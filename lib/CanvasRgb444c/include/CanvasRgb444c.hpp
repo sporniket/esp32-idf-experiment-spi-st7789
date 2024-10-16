@@ -35,22 +35,28 @@ class CanvasRgb444c {
         bool greaterY1 = (y1 > y2);
         uint16_t dxAbs = (greaterX1) ? (x1 - x2) : (x2 - x1);
         uint16_t dyAbs = (greaterY1) ? (y1 - y2) : (y2 - y1);
-        if (dxAbs > dyAbs) {
-            //horizontal-ish
+        if (0 == dyAbs) {
             if (greaterX1) {
-                return buffer.unsafe_brensenhamLine(x2, y2, x1, y1, false);
-            } else {
-                return buffer.unsafe_brensenhamLine(x1, y1, x2, y2, false);
+                return buffer.unsafe_hline(x2, y2, dxAbs + 1);
             }
+            return buffer.unsafe_hline(x1, y1, dxAbs + 1);
+        } else if (0 == dxAbs) {
+            if (greaterY1) {
+                return buffer.unsafe_vline(x2, y2, dyAbs + 1);
+            }
+            return buffer.unsafe_vline(x1, y1, dyAbs + 1);
         } else if (dyAbs > dxAbs) {
-            //vertical-ish
+            // vertical-ish
             if (greaterY1) {
                 return buffer.unsafe_brensenhamLine(y2, x2, y1, x1, true);
-            } else {
-                return buffer.unsafe_brensenhamLine(y1, x1, y2, x2, true);
             }
-        } else {
-            return CanvasReturnCode::KO__ERROR;
+            return buffer.unsafe_brensenhamLine(y1, x1, y2, x2, true);
+        } else { 
+            // horizontal-ish
+            if (greaterX1) {
+                return buffer.unsafe_brensenhamLine(x2, y2, x1, y1, false);
+            }
+            return buffer.unsafe_brensenhamLine(x1, y1, x2, y2, false);
         }
     }
 
