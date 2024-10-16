@@ -25,7 +25,7 @@ class CanvasBufferRgb444c {
 
     CanvasReturnCode unsafe_vline(uint16_t x, uint16_t y, uint16_t h);
 
-    CanvasReturnCode unsafe_HBrensenHamLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+    CanvasReturnCode unsafe_brensenhamLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, bool transpose);
 
     void setColor(Color &color) { setupColorBrushes(color.asRgb444(), color_even, color_odd, color_both); }
 

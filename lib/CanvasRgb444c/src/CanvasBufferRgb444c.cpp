@@ -109,7 +109,8 @@ void CanvasBufferRgb444c::setupColorBrushes(uint16_t c, uint8_t *even, uint8_t *
     both[2] = odd[1];           // GB
 }
 
-CanvasReturnCode CanvasBufferRgb444c::unsafe_HBrensenHamLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+CanvasReturnCode CanvasBufferRgb444c::unsafe_brensenhamLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,
+                                                             bool transpose) {
     // called only when :
     // * x2 > x1
     // * y2 != y1
@@ -117,7 +118,7 @@ CanvasReturnCode CanvasBufferRgb444c::unsafe_HBrensenHamLine(uint16_t x1, uint16
 
     uint16_t dx = x2 - x1;
     uint16_t dx2 = dx << 1; // = dx * 2;
-    uint16_t dy2 ;
+    uint16_t dy2;
     int16_t dydraw;
 
     if (y2 > y1) {
@@ -136,7 +137,11 @@ CanvasReturnCode CanvasBufferRgb444c::unsafe_HBrensenHamLine(uint16_t x1, uint16
     for (uint16_t i = 1; i <= dx; i++) {
         sigma += dy2;
         if (sigma > dx) {
-            hline(xmark, ymark, len);
+            if (transpose) {
+                vline(ymark, xmark, len);
+            } else {
+                hline(xmark, ymark, len);
+            }
             ymark += dydraw;
             xmark += len;
             len = 1;
@@ -146,6 +151,10 @@ CanvasReturnCode CanvasBufferRgb444c::unsafe_HBrensenHamLine(uint16_t x1, uint16
         }
     }
 
-    hline(xmark, ymark, len);
+    if (transpose) {
+        vline(ymark, xmark, len);
+    } else {
+        hline(xmark, ymark, len);
+    }
     return CanvasReturnCode::OK;
 }
