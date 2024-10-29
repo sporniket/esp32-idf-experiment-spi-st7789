@@ -283,14 +283,14 @@ class PixelFormat {
      *
      * @return PixelType the type of pixel format.
      */
-    const PixelType getType() const { return type; }
+    PixelType getType() const { return type; }
 
     /**
      * @brief Get the layout format of the pixels.
      *
      * @return PixelLayout the layout format of the pixels.
      */
-    const PixelLayout getLayout() const { return layout; }
+    PixelLayout getLayout() const { return layout; }
 
     /**
      * @brief Get the format of the raw data in memory.
@@ -309,11 +309,6 @@ class PixelFormat {
 
     private:
     /**
-     * @brief Format of the storage in memory.
-     */
-    const std::unique_ptr<StorageUnitFormat> storage;
-
-    /**
      * @brief Storage of the type of pixel.
      */
     const PixelType type;
@@ -327,6 +322,11 @@ class PixelFormat {
      * @brief Logical storage description format.
      */
     const std::variant<IndexedFormat, RGBFormat> format;
+
+    /**
+     * @brief Format of the storage in memory.
+     */
+    const std::unique_ptr<StorageUnitFormat> storage;
 };
 
 #endif

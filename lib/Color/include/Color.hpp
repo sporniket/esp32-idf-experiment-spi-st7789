@@ -34,22 +34,22 @@ class Color {
     bool operator!=(const Color &rhs) const { return !operator==(rhs); }
 
     // Accesseurs pour les composantes rouge, verte et bleue
-    const uint32_t getRed() const { return red; }
-    const uint32_t getGreen() const { return green; }
-    const uint32_t getBlue() const { return blue; }
+    uint32_t getRed() const { return red; }
+    uint32_t getGreen() const { return green; }
+    uint32_t getBlue() const { return blue; }
 
     // Conversions vers différents formats de couleur
-    const uint8_t asRgb332() const { return rgb332; }
+    uint8_t asRgb332() const { return rgb332; }
 
-    const uint16_t asRgb444() const { return rgb444; }
+    uint16_t asRgb444() const { return rgb444; }
 
-    const uint16_t asRgb555() const { return rgb555; }
+    uint16_t asRgb555() const { return rgb555; }
 
-    const uint16_t asRgb565() const { return rgb565; }
+    uint16_t asRgb565() const { return rgb565; }
 
-    const uint32_t asRgb666() const { return rgb666; }
+    uint32_t asRgb666() const { return rgb666; }
 
-    const uint32_t asRgb888() const { return rgb888; }
+    uint32_t asRgb888() const { return rgb888; }
 
     private:
     uint32_t red;

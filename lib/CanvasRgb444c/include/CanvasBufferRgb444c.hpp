@@ -33,8 +33,8 @@ class CanvasBufferRgb444c {
         setupColorBrushes(color.asRgb444(), backgroundColor_even, backgroundColor_odd, backgroundColor_both);
     }
 
-    const uint16_t getWidth() const {return width;}
-    const uint16_t getHeight() const {return height;}
+    uint16_t getWidth() const {return width;}
+    uint16_t getHeight() const {return height;}
 
     private:
     void changeSinglePixel(uint8_t *pairStart, bool odd, uint8_t *c_odd, uint8_t *c_even) {

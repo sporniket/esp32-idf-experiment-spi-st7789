@@ -91,14 +91,14 @@ class StorageUnitFormat {
      *
      * @return uint8_t the width of the unit storage.
      */
-    const uint8_t getWidth() const { return width; }
+    uint8_t getWidth() const { return width; }
 
     /**
      * @brief Get the endianness of the unit storage.
      *
      * @return StorageEndianness the endianness of the unit storage.
      */
-    const StorageEndianness getEndianness() const { return endianness; }
+    StorageEndianness getEndianness() const { return endianness; }
 
     private:
     /**
