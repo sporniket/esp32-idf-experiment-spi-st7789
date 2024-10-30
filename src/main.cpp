@@ -40,6 +40,8 @@
 #include "ColorRgb48Bpp.hpp"
 #include "FrameBuffer12Bpp.hpp"
 
+#include "CanvasRgb444c.hpp"
+
 static const char *TAG_MAIN = "main";
 
 /**
@@ -83,6 +85,28 @@ DRAM_ATTR static const uint8_t RGB_DATA[] = {
 uint8_t *ptrScreen;
 FrameBuffer12Bpp *frambuff;
 
+// Const for computing canvas dimension
+const uint32_t sizeOfScreenLine = (CONFIG_ST7789_WIDTH) + (CONFIG_ST7789_WIDTH >> 1);
+const uint32_t sizeOfFrameBuffer = sizeOfScreenLine * (CONFIG_ST7789_HEIGHT);
+const uint32_t startOfLine20 = 20 * sizeOfScreenLine;
+const uint32_t startOfLine40 = startOfLine20 << 1;
+const uint32_t startOfLine60 = startOfLine40 + startOfLine20;
+const uint32_t startOfLine80 = startOfLine60 + startOfLine20;
+const uint32_t startOfLine100 = startOfLine80 + startOfLine20;
+const uint32_t startOfLine120 = startOfLine100 + startOfLine20;
+const uint32_t startOfLine140 = startOfLine120 + startOfLine20;
+const uint32_t startOfLine160 = startOfLine140 + startOfLine20;
+const uint32_t startOfLine180 = startOfLine160 + startOfLine20;
+const uint32_t startOfLine200 = startOfLine180 + startOfLine20;
+const uint32_t startOfLine220 = startOfLine200 + startOfLine20;
+const uint32_t startOfLine240 = startOfLine220 + startOfLine20;
+// Canvas #1 : from line 20 to 80 (60 lines)
+
+MemoryArea *canvasBufferArea;
+CanvasBufferRgb444c *canvasBuffer;
+std::unique_ptr<Palette> greenPalette{PaletteHelper::getPalette(PaletteEnum::MONOCHROME_GREEN)};
+CanvasRgb444c *canvas;
+
 FeedbackLed mainLed;
 GeneralPurposeInputOutput *gpio;
 SpiSimplistEsp32 *spi;
@@ -101,6 +125,25 @@ class LedUpdaterTask : public Task {
 };
 
 LedUpdaterTask *updateTask;
+
+void drawTestFigure(CanvasRgb444c &c) {
+    // missing : getWidth(), getHeight() and clear()
+    const uint16_t w = CONFIG_ST7789_WIDTH; // missing : c.getWidth()
+    const uint16_t h = 60;                  // missing : c.getHeight()
+    // missing : c.clear() ;
+    // missing : c.setColor(0)
+    for (uint16_t row = 0; row < h; row++) {
+        c.line(0, row, w - 1, row);
+    }
+    // missing : c.setColor(2)
+    c.line(5, 5, w - 6, h - 6);
+    c.line(w - 6, 5, 5, h - 6);
+    // missing : c.rectangle(5, 5, w - 6, h - 6)
+    c.line(5, 5, w - 6, 5);
+    c.line(w - 6, 5, w - 6, h - 6);
+    c.line(w - 6, h - 6, 5, h - 6);
+    c.line(5, h - 6, 5, 5);
+}
 
 void onBeforeTransactionForSt7789(spi_transaction_t *t) {
     ESP_LOGV(TAG_MAIN, "--> onBeforeTransactionForSt7789");
@@ -146,6 +189,11 @@ void app_main() {
         ptrScreen = (uint8_t *)(mallocRegistry["MainFrameBuffer"]->getStart());
         ESP_LOGI(TAG_MAIN, "Instanciate framebuffer using buffer at %p...", (void *)ptrScreen);
         frambuff = new FrameBuffer12Bpp(CONFIG_ST7789_WIDTH, CONFIG_ST7789_HEIGHT, ptrScreen);
+        ESP_LOGI(TAG_MAIN, "Initialize main canvas...");
+        canvasBufferArea = new MemoryArea((uint8_t *)(mallocRegistry["MainFrameBuffer"]->getStart() + startOfLine20),
+                                          (startOfLine80 - startOfLine20));
+        canvasBuffer = new CanvasBufferRgb444c(*canvasBufferArea, CONFIG_ST7789_WIDTH, 60);
+        canvas = new CanvasRgb444c(*canvasBuffer, *greenPalette);
         ESP_LOGI(TAG_MAIN, "Initialize screen memory...");
         ColorRgb48Bpp color(0, 0, 0);
         for (uint32_t line = 0; line < frambuff->getHeight(); line++) {
