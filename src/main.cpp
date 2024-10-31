@@ -216,12 +216,14 @@ void app_main() {
     // setup gpio
     gpio = (new GeneralPurposeInputOutput())->withDigital(new DigitalInputOutputEsp32());
     // control panel
+    ESP_LOGI(TAG_MAIN, "-- control panel pins");
     gpio->getDigital()->setup(CONFIG_PIN_STATUS_MAIN, PinDirection::WRITE);
     gpio->getDigital()->setup(CONFIG_PIN_BUTTON_MENU, PinDirection::READ);
     gpio->getDigital()->setup(CONFIG_PIN_BUTTON_BACK, PinDirection::READ);
     gpio->getDigital()->setup(CONFIG_PIN_BUTTON_DOWN, PinDirection::READ);
     gpio->getDigital()->setup(CONFIG_PIN_BUTTON_UP, PinDirection::READ);
     // SPI pins
+    ESP_LOGI(TAG_MAIN, "-- SPI pins");
     gpio->getDigital()->setup(CONFIG_PIN_SPI_HOST_SCK, PinDirection::WRITE);
     if (CONFIG_PIN_SPI_HOST_SDO > -1) {
         gpio->getDigital()->setup(CONFIG_PIN_SPI_HOST_SDO, PinDirection::WRITE);
@@ -240,9 +242,11 @@ void app_main() {
     }
 
     // ST7789 pins
+    ESP_LOGI(TAG_MAIN, "-- ST7789 pins");
     gpio->getDigital()->setup(CONFIG_PIN_ST7789_DATA_COMMAND, PinDirection::WRITE);
     gpio->getDigital()->setup(CONFIG_PIN_ST7789_RESET, PinDirection::WRITE);
     // -- hardware reset
+    ESP_LOGI(TAG_MAIN, "ST7789 hardware reset");
     gpio->getDigital()->setToLow(CONFIG_PIN_ST7789_RESET);
     vTaskDelay(100 / portTICK_PERIOD_MS);
     gpio->getDigital()->setToHigh(CONFIG_PIN_ST7789_RESET);
@@ -256,6 +260,7 @@ void app_main() {
     // -- setup led
     mainLed.setFeedbackSequenceOnce(FeedbackSequence::BLINK_ONCE);
     // setup SPI Port (speed, pins, etc...) as HOST (a set of Peripheral Select pins)
+    ESP_LOGI(TAG_MAIN, "Initialize SPI2");
     spi = SpiSimplistEsp32::define() //
                   ->withHostSpecs(SPI2_HOST,
                                   (new SpiSerialPinsMappingSpecs())               //
@@ -361,6 +366,31 @@ void app_main() {
     //                0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb,0xfd,0xbf,0xdb  // line 8
     //            )
     lcd7789->await(lcd7789->ramwr(96, (uint8_t *)RGB_DATA + 24));
+
+    // use the canvas
+    drawTestFigure(*canvas);
+    // FIXME : send the whole in one go seems too much, or is it my code ? (most probably my code)
+    // Most likely : for long transfert, do not await, and regularly poll.
+    // and for still awaiting, see how to encapsulate, but most likely not in the main function
+    // ST7789 --> CASET(116,123)
+    // lcd7789->await(lcd7789->caset(0, CONFIG_ST7789_WIDTH - 1));
+    // ST7789 --> RASET(116,123)
+    // lcd7789->await(lcd7789->raset(20, 79));
+    // ST7789 --> RAMWR(canvasBufferArea)
+    // lcd7789->await(lcd7789->ramwr(canvasBufferArea->getLength(), canvasBufferArea->getStart()));
+
+    // Meanwhile, brut copy of the screen...
+    ESP_LOGI(TAG_MAIN, "BEGIN Copy screen memory...");
+    // copy ptrScreen line by line
+    lcd7789->await(lcd7789->caset(0, frambuff->getWidth() - 1));
+    uint8_t *currentData = ptrScreen;
+    uint32_t wrSize = (frambuff->getWidth() + (frambuff->getWidth() >> 1)) * 4;
+    for (uint32_t line = 0; line < frambuff->getHeight(); line += 4) {
+        lcd7789->await(lcd7789->raset(line, line + 3));
+        lcd7789->await(lcd7789->ramwr(wrSize, currentData));
+        currentData += wrSize;
+    }
+    ESP_LOGI(TAG_MAIN, "DONE Copy screen memory.");
 
     // ====[ THE END ]====
     ESP_LOGI(TAG_MAIN, "You should see something on the screen...");
