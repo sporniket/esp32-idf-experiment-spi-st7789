@@ -131,13 +131,18 @@ void drawTestFigure(CanvasRgb444c &c) {
     const uint16_t w = CONFIG_ST7789_WIDTH; // missing : c.getWidth()
     const uint16_t h = 60;                  // missing : c.getHeight()
     // missing : c.clear() ;
-    // missing : c.setColor(0)
+    c.setShapeColorIndex(0);
     for (uint16_t row = 0; row < h; row++) {
         c.line(0, row, w - 1, row);
     }
-    // missing : c.setColor(2)
+
+    // inner cross
+    c.setShapeColorIndex(1) ;
     c.line(5, 5, w - 6, h - 6);
     c.line(w - 6, 5, 5, h - 6);
+    
+    // outer rectangle
+    c.setShapeColorIndex(3);
     // missing : c.rectangle(5, 5, w - 6, h - 6)
     c.line(5, 5, w - 6, 5);
     c.line(w - 6, 5, w - 6, h - 6);
