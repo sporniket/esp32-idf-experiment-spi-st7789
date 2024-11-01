@@ -115,9 +115,25 @@ void canvas_line__should_draw_rasterized_line() {
 
 }
 
+void canvas_setColor__should_change_active_color() {
+    uint8_t buffer[24 * 16]; // for 16x16 pixels
+    MemoryArea bufferArea(buffer, sizeof(buffer));
+    CanvasBufferRgb444c cbuf(bufferArea, 16, 16);
+    std::unique_ptr<Palette> p{PaletteHelper::getPalette(PaletteEnum::MONOCHROME_GREEN)};
+    CanvasRgb444c c(cbuf, *p);
+
+    c.setShapeColorIndex(1) ;
+    c.plot(0,0);
+    c.setShapeColorIndex(2) ; 
+    c.plot(1,0);
+    uint8_t expected[3] {0x39,0x64,0xd9} ;
+    TEST_ASSERT_EQUAL_UINT8_ARRAY((expected), (buffer), (sizeof(expected)));
+}
+
 int main(int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(canvas_plot__should_modify_one_pixel);
     RUN_TEST(canvas_line__should_draw_rasterized_line);
+    RUN_TEST(canvas_setColor__should_change_active_color);
     UNITY_END();
 }

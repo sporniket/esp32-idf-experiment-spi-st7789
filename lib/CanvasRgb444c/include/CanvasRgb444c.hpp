@@ -60,9 +60,26 @@ class CanvasRgb444c {
         }
     }
 
+    /**
+     * @brief Get the index in the palette of the color currently used to draw/fill shapes.
+     * 
+     * @return uint16_t Index in the palette of the color currently used to draw/fill shapes.
+     */
+    uint16_t getShapeColorIndex() const {return shapeColorIndex ;}
+    void setShapeColorIndex(uint16_t index) {
+        if (index < palette.size()) {
+            shapeColorIndex = index ;
+            buffer.setColor(palette[shapeColorIndex]);
+        }
+    }
+
     private:
     CanvasBufferRgb444c &buffer;
     Palette &palette;
+    /**
+     * @brief Index in the palette of the color currently used to draw/fill shapes.
+     */
+    uint16_t shapeColorIndex ; 
 };
 
 #endif
